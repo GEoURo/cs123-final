@@ -22,16 +22,29 @@ win32 {
 }
 
 SOURCES += ui/mainwindow.cpp \
+    camera/OrbitingCamera.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
     ui/view.cpp \
-    ui/viewformat.cpp
+    ui/viewformat.cpp \
+    utils/CS123XmlSceneParser.cpp \
+    utils/RGBA.cpp \
+    utils/ResourceLoader.cpp \
+    utils/settings.cpp
 
 HEADERS += ui/mainwindow.h \
+    camera/Camera.h \
+    camera/OrbitingCamera.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
-    ui/viewformat.h
+    ui/viewformat.h \
+    utils/CS123ISceneParser.h \
+    utils/CS123SceneData.h \
+    utils/CS123XmlSceneParser.h \
+    utils/RGBA.h \
+    utils/ResourceLoader.h \
+    utils/settings.h
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include
