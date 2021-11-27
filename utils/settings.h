@@ -28,6 +28,12 @@ struct Settings {
     // Saves the current settings to disk.
     void saveSettings();
 
+    // Core feature switches
+    bool antiAliasing;
+    bool depthOfField;
+    bool hdr;
+    bool shadowMapping;
+
     // Camtrans
     float cameraFov;            // The camera's field of view, which is twice the height angle.
     float cameraNear;           // The distance from the camera to the near clipping plane.
