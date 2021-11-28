@@ -27,13 +27,13 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>250</width>
           <height>180</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>180</width>
+          <width>250</width>
           <height>180</height>
          </size>
         </property>
@@ -43,77 +43,49 @@
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
-        <widget class="QCheckBox" name="antiAliasing">
-         <property name="geometry">
-          <rect>
-           <x>13</x>
-           <y>31</y>
-           <width>100</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Anti-Aliasing</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="depthOfField">
-         <property name="geometry">
-          <rect>
-           <x>13</x>
-           <y>58</y>
-           <width>109</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Depth of Field</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="hdr">
-         <property name="geometry">
-          <rect>
-           <x>13</x>
-           <y>85</y>
-           <width>52</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>HDR</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="shadowMapping">
-         <property name="geometry">
-          <rect>
-           <x>13</x>
-           <y>112</y>
-           <width>128</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Shadow Mapping</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="textureMapping">
-         <property name="geometry">
-          <rect>
-           <x>13</x>
-           <y>139</y>
-           <width>125</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Texture Mapping</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="antiAliasing">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Anti-Aliasing</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="depthOfField">
+           <property name="text">
+            <string>Depth of Field</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="hdr">
+           <property name="text">
+            <string>HDR</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="shadowMapping">
+           <property name="text">
+            <string>Shadow Mapping</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="textureMapping">
+           <property name="text">
+            <string>Texture Mapping</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -136,25 +108,31 @@
        <widget class="QGroupBox" name="cameraBox">
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>250</width>
           <height>160</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>180</width>
+          <width>250</width>
           <height>160</height>
          </size>
         </property>
         <property name="title">
          <string>Camera</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2">
+        <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0" rowminimumheight="0,0,0,0,0,0,0,0,0,0">
          <item row="0" column="3">
           <widget class="QLineEdit" name="fovInput">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -170,13 +148,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>75</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -187,9 +165,15 @@
          </item>
          <item row="0" column="1">
           <widget class="QSlider" name="fovSlider">
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -257,9 +241,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -270,9 +260,15 @@
          </item>
          <item row="3" column="3">
           <widget class="QLineEdit" name="nearInput">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -295,13 +291,13 @@
           <widget class="QLineEdit" name="dofInput">
            <property name="minimumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -309,9 +305,15 @@
          </item>
          <item row="6" column="3">
           <widget class="QLineEdit" name="farInput">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -325,9 +327,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>75</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -366,31 +374,31 @@
        <widget class="QGroupBox" name="shapeBox">
         <property name="minimumSize">
          <size>
-          <width>180</width>
+          <width>250</width>
           <height>120</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>180</width>
+          <width>250</width>
           <height>120</height>
          </size>
         </property>
         <property name="title">
          <string>Shapes</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
+        <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0">
          <item row="3" column="1">
           <widget class="QSlider" name="shapeSlider3">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -407,9 +415,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>10</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -422,13 +436,13 @@
           <widget class="QSlider" name="shapeSlider2">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
@@ -441,13 +455,13 @@
           <widget class="QLineEdit" name="shapeParam3">
            <property name="minimumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -457,13 +471,13 @@
           <widget class="QLineEdit" name="shapeParam2">
            <property name="minimumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
+             <width>60</width>
              <height>16777215</height>
             </size>
            </property>
@@ -474,9 +488,15 @@
          </item>
          <item row="3" column="0" rowspan="2">
           <widget class="QLabel" name="shapeLabel3">
+           <property name="minimumSize">
+            <size>
+             <width>30</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>10</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -485,27 +505,17 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QLineEdit" name="shapeParam1">
+         <item row="2" column="0">
+          <widget class="QLabel" name="shapeLabel2">
            <property name="minimumSize">
             <size>
-             <width>40</width>
+             <width>30</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="shapeLabel2">
-           <property name="maximumSize">
-            <size>
-             <width>10</width>
+             <width>30</width>
              <height>16777215</height>
             </size>
            </property>
@@ -518,18 +528,34 @@
           <widget class="QSlider" name="shapeSlider1">
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>16777215</height>
             </size>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLineEdit" name="shapeParam1">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
          </item>
