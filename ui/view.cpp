@@ -68,9 +68,7 @@ void View::paintGL() {
 }
 
 void View::resizeGL(int w, int h) {
-    float ratio = static_cast<QGuiApplication *>(QCoreApplication::instance())->devicePixelRatio();
-    w = static_cast<int>(w / ratio);
-    h = static_cast<int>(h / ratio);
+    float ratio = w / (float)h;
     m_camera->setAspectRatio(ratio);
     glViewport(0, 0, w, h);
 }
@@ -93,7 +91,6 @@ void View::mousePressEvent(QMouseEvent *event) {
 
         update();
     }
-
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {

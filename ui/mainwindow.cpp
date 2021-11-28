@@ -47,6 +47,7 @@ void MainWindow::fileOpen() {
         if (m_sceneParser->parse()) {
             // setup the canvas with the scenefile
             ui->view->loadFromParser(m_sceneParser.get());
+            ui->view->update();
         } else {
             QMessageBox::critical(this, "Error", "Could not load scene \"" + file + "\"");
         }

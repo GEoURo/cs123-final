@@ -62,20 +62,35 @@ void OrbitingCamera::mouseScrolled(int delta) {
     updateViewMatrix();
 }
 
+void OrbitingCamera::orientLook(const glm::vec4 &eye, const glm::vec4 &look, const glm::vec4 &up) {
+//    glm::vec4 w = -glm::normalize(look);
+//    glm::vec4 v = glm::normalize(up - glm::dot(up, w) * w);
+//    glm::vec4 u = glm::vec4(glm::cross(glm::vec3(v), glm::vec3(w)), 0.f);
+
+//    m_rotationMatrix = glm::transpose(glm::mat4(u, v, w, glm::vec4(0.f, 0.f, 0.f, 1.f)));
+
+//    m_translationMatrix = mat4(1.f);
+//    m_translationMatrix[3] = vec4(-eye.x, -eye.y, -eye.z, 1.f);
+
+//        updateViewMatrix();
+}
+
 void OrbitingCamera::updateMatrices() {
     updateProjectionMatrix();
     updateViewMatrix();
 }
 
 void OrbitingCamera::updateProjectionMatrix() {
+    // FIXME: settings from UI
+    float fov = 55;settings.cameraFov;
     // Make sure glm gets a far value that is greater than the near value.
-    // Thanks Windows for making far a keyword!
-    float farPlane = std::max(settings.cameraFar, settings.cameraNear + 100.f * FLT_EPSILON);
-    float h = farPlane * glm::tan(glm::radians(settings.cameraFov * 0.5f));
+    float nearPlane = 0.1f;settings.cameraNear;
+    float farPlane = std::max(50.f, nearPlane + 100.f * FLT_EPSILON);
+    float h = farPlane * glm::tan(glm::radians(fov * 0.5f));
     float w = m_aspectRatio * h;
 
     m_scaleMatrix = glm::scale(glm::vec3(1.f / w, 1.f / h, 1.f / farPlane));
-    m_projectionMatrix = glm::perspective(glm::radians(settings.cameraFov), m_aspectRatio, settings.cameraNear, farPlane) * 0.02f;
+    m_projectionMatrix = glm::perspective(glm::radians(fov), m_aspectRatio, nearPlane, farPlane) * 0.02f;
 }
 
 void OrbitingCamera::updateViewMatrix() {

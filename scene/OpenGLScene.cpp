@@ -2,18 +2,12 @@
 
 #include <GL/glew.h>
 
-#include "utils/settings.h"
-
 OpenGLScene::~OpenGLScene()
 {
 }
 
 void OpenGLScene::setClearColor() {
-    if (settings.drawWireframe || settings.drawNormals) {
-        glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
-    } else {
-        glClearColor(0, 0, 0, 0);
-    }
+    glClearColor(0.f, 0.f, 0.f, 1.f);
 }
 
 void OpenGLScene::settingsChanged() {

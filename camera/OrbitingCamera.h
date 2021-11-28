@@ -31,6 +31,8 @@ public:
 
     void updateMatrices();
 
+    void orientLook(const glm::vec4 &eye, const glm::vec4 &look, const glm::vec4 &up);
+
 private:
     void updateProjectionMatrix();
     void updateViewMatrix();
