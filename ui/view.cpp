@@ -11,7 +11,6 @@
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_time(),
     m_timer(),
-    m_settingsDirty(true),
     m_captureMouse(false),
     m_camera(new OrbitingCamera()),
     m_scene(nullptr)
@@ -78,8 +77,11 @@ void View::loadFromParser(CS123ISceneParser *parser) {
 }
 
 void View::settingsChanged() {
-    m_scene->settingsChanged();
+    if (m_scene == nullptr) {
+        return;
+    }
 
+    m_scene->settingsChanged();
     update();
 }
 

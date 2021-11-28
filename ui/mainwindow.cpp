@@ -55,7 +55,7 @@ void MainWindow::fileOpen() {
 }
 
 void MainWindow::settingsChanged() {
-    std::cout << settings.antiAliasing << ' ' << settings.depthOfField << ' ' << settings.hdr << ' ' << settings.shadowMapping << std::endl;
+    ui->view->settingsChanged();
 }
 
 void MainWindow::setupDataBindings() {
@@ -70,5 +70,22 @@ void MainWindow::setupDataBindings() {
     BIND(BoolBinding::bindCheckbox(ui->shadowMapping,   settings.shadowMapping));
     BIND(BoolBinding::bindCheckbox(ui->textureMapping,  settings.textureMapping));
 
+    BIND(IntBinding::bindSliderAndTextbox(ui->shapeSlider1, ui->shapeParam1, settings.shapeParameter1, 0, 100));
+    BIND(IntBinding::bindSliderAndTextbox(ui->shapeSlider2, ui->shapeParam2, settings.shapeParameter2, 0, 100));
+    BIND(FloatBinding::bindSliderAndTextbox(ui->shapeSlider3, ui->shapeParam3, settings.shapeParameter3, 0.f, 100.f));
+
+    BIND(FloatBinding::bindSliderAndTextbox(ui->fovSlider, ui->fovInput, settings.cameraFov, 1.f, 179.f));
+    BIND(FloatBinding::bindSliderAndTextbox(ui->nearSlider, ui->nearInput, settings.cameraNear, 0.1f, 50.f));
+    BIND(FloatBinding::bindSliderAndTextbox(ui->farSlider, ui->farInput, settings.cameraFar, 0.1f, 50.f));
+    BIND(FloatBinding::bindSliderAndTextbox(ui->dofSlider, ui->dofInput, settings.cameraDof, 1.f, 179.f));
+
+    initializeCameraFrustum();
+
 #undef BIND
+}
+
+void MainWindow::initializeCameraFrustum() {
+    ui->fovInput->setText(QString::number(55, 'f', 1));
+    ui->nearInput->setText(QString::number(.1, 'f', 1));
+    ui->farInput->setText(QString::number(50, 'f', 1));
 }

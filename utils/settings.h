@@ -39,6 +39,7 @@ struct Settings {
     float cameraFov;            // The camera's field of view, which is twice the height angle.
     float cameraNear;           // The distance from the camera to the near clipping plane.
     float cameraFar;            // The distance from the camera to the far clipping plane.
+    float cameraDof;
 
     bool drawWireframe;
     bool drawNormals;

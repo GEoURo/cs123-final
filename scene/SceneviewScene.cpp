@@ -192,7 +192,6 @@ void SceneviewScene::render(View *context) {
     if (settings.drawWireframe) {
         renderWireframePass(context);
     }
-
 }
 
 void SceneviewScene::setGlobalData(){

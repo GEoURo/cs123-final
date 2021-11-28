@@ -38,6 +38,7 @@ private:
     std::unique_ptr<CS123XmlSceneParser> m_sceneParser;
 
     void setupDataBindings();
+    void initializeCameraFrustum();
 };
 
 #endif // MAINWINDOW_H

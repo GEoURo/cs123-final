@@ -81,11 +81,10 @@ void OrbitingCamera::updateMatrices() {
 }
 
 void OrbitingCamera::updateProjectionMatrix() {
-    // FIXME: settings from UI
-    float fov = 55;settings.cameraFov;
+    float fov = settings.cameraFov;
     // Make sure glm gets a far value that is greater than the near value.
-    float nearPlane = 0.1f;settings.cameraNear;
-    float farPlane = std::max(50.f, nearPlane + 100.f * FLT_EPSILON);
+    float nearPlane = settings.cameraNear;
+    float farPlane = std::max(settings.cameraFar, nearPlane + 100.f * FLT_EPSILON);
     float h = farPlane * glm::tan(glm::radians(fov * 0.5f));
     float w = m_aspectRatio * h;
 

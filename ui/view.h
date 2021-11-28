@@ -28,7 +28,6 @@ private:
     QTime m_time;
     QTimer m_timer;
 
-    bool m_settingsDirty;
     bool m_captureMouse;
 
     std::unique_ptr<OrbitingCamera> m_camera;
