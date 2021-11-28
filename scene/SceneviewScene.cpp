@@ -273,7 +273,7 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
 
         // setup repeatUV for texture mapping
         CS123SceneFileMap textureMap = m_primitives[i].material.textureMap;
-        if (settings.useTextureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
+        if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
             // setup texture and bind the texture
             m_phongShader->setUniform("useTexture", 1);
             m_phongShader->setUniform("repeatUV", vec2(textureMap.repeatU, textureMap.repeatV));
@@ -286,7 +286,7 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
         renderPrimitive(m_primitives[i].type);
 
         // unbind the texture
-        if (settings.useTextureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
+        if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
             m_textures[i]->unbind();
         }
     }

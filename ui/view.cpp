@@ -59,7 +59,6 @@ void View::initializeGL() {
 }
 
 void View::paintGL() {
-    std::cout << "paintGL" << std::endl;
     if (m_scene == nullptr) {
         return;
     }

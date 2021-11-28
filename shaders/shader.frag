@@ -5,7 +5,7 @@ in vec2 texc;
 out vec4 fragColor;
 
 uniform sampler2D tex;
-uniform int useTexture = 0;
+uniform int useTexture;
 uniform vec2 repeatUV;
 
 void main(){

@@ -68,6 +68,7 @@ void MainWindow::setupDataBindings() {
     BIND(BoolBinding::bindCheckbox(ui->depthOfField,    settings.depthOfField));
     BIND(BoolBinding::bindCheckbox(ui->hdr,             settings.hdr));
     BIND(BoolBinding::bindCheckbox(ui->shadowMapping,   settings.shadowMapping));
+    BIND(BoolBinding::bindCheckbox(ui->textureMapping,  settings.textureMapping));
 
 #undef BIND
 }

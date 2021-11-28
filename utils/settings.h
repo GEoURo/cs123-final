@@ -33,6 +33,7 @@ struct Settings {
     bool depthOfField;
     bool hdr;
     bool shadowMapping;
+    bool textureMapping;
 
     // Camtrans
     float cameraFov;            // The camera's field of view, which is twice the height angle.
@@ -45,8 +46,6 @@ struct Settings {
     int shapeParameter1;
     int shapeParameter2;
     float shapeParameter3;
-
-    bool useTextureMapping;
 };
 
 // The global Settings object, will be initialized by MainWindow
