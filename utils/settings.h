@@ -39,8 +39,14 @@ struct Settings {
     float cameraNear;           // The distance from the camera to the near clipping plane.
     float cameraFar;            // The distance from the camera to the far clipping plane.
 
-    // Modeler
-    int objTool;                // The currently selected modeler tool.
+    bool drawWireframe;
+    bool drawNormals;
+
+    int shapeParameter1;
+    int shapeParameter2;
+    float shapeParameter3;
+
+    bool useTextureMapping;
 };
 
 // The global Settings object, will be initialized by MainWindow

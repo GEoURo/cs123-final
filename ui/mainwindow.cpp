@@ -45,20 +45,8 @@ void MainWindow::fileOpen() {
     } else {
         m_sceneParser = std::unique_ptr<CS123XmlSceneParser>(new CS123XmlSceneParser(file.toLatin1().data()));
         if (m_sceneParser->parse()) {
-            // TODO: setup the canvas with the scenefile
-//            m_canvas3D->loadSceneviewSceneFromParser(*m_sceneParser);
-
-            // Set the camera for the new scene
-            CS123SceneCameraData camera;
-            if (m_sceneParser->getCameraData(camera)) {
-                camera.pos[3] = 1;
-                camera.look[3] = 0;
-                camera.up[3] = 0;
-
-//                CamtransCamera *cam = m_canvas3D->getCamtransCamera();
-//                cam->orientLook(camera.pos, camera.look, camera.up);
-//                cam->setHeightAngle(camera.heightAngle);
-            }
+            // setup the canvas with the scenefile
+            ui->view->loadFromParser(m_sceneParser.get());
         } else {
             QMessageBox::critical(this, "Error", "Could not load scene \"" + file + "\"");
         }
