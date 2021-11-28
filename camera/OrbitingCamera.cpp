@@ -100,27 +100,22 @@ void OrbitingCamera::updateViewMatrix() {
             glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
 }
 
-void OrbitingCamera::moveForward(){
-    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
-    m_zoomZ +=0.1;
-    std::cout<< m_zoomZ<<std::endl;
+void OrbitingCamera::moveForward() {
+    m_zoomZ += 0.1;
     updateViewMatrix();
 }
-void OrbitingCamera::moveBackward(){
-    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
-    m_zoomZ -=0.1;
-    std::cout<< m_zoomZ<<std::endl;
+
+void OrbitingCamera::moveBackward() {
+    m_zoomZ -= 0.1;
     updateViewMatrix();
 }
-void OrbitingCamera::moveRight(){
-    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
-    m_zoomX -=0.1;
-    std::cout<< m_zoomX<<std::endl;
+
+void OrbitingCamera::moveRight() {
+    m_zoomX -= 0.1;
     updateViewMatrix();
 }
-void OrbitingCamera::moveLeft(){
-    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
-    m_zoomX +=0.1;
-    std::cout<< m_zoomX<<std::endl;
+
+void OrbitingCamera::moveLeft() {
+    m_zoomX += 0.1;
     updateViewMatrix();
 }
