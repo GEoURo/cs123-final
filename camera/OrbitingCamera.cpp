@@ -20,7 +20,8 @@
 
 #include "OrbitingCamera.h"
 #include "utils/settings.h"
-
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 void OrbitingCamera::setAspectRatio(float aspectRatio) {
     m_aspectRatio = aspectRatio;
     updateProjectionMatrix();
@@ -94,7 +95,32 @@ void OrbitingCamera::updateProjectionMatrix() {
 
 void OrbitingCamera::updateViewMatrix() {
     m_viewMatrix =
-            glm::translate(glm::vec3(0.f, 0.f, m_zoomZ)) *
+            glm::translate(glm::vec3(m_zoomX, 0.f, m_zoomZ)) *
             glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
             glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+}
+
+void OrbitingCamera::moveForward(){
+    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
+    m_zoomZ +=0.1;
+    std::cout<< m_zoomZ<<std::endl;
+    updateViewMatrix();
+}
+void OrbitingCamera::moveBackward(){
+    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
+    m_zoomZ -=0.1;
+    std::cout<< m_zoomZ<<std::endl;
+    updateViewMatrix();
+}
+void OrbitingCamera::moveRight(){
+    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
+    m_zoomX -=0.1;
+    std::cout<< m_zoomX<<std::endl;
+    updateViewMatrix();
+}
+void OrbitingCamera::moveLeft(){
+    std::cout<< glm::to_string(m_viewMatrix)<<std::endl;
+    m_zoomX +=0.1;
+    std::cout<< m_zoomX<<std::endl;
+    updateViewMatrix();
 }

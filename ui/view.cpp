@@ -124,6 +124,28 @@ void View::wheelEvent(QWheelEvent *event) {
 }
 
 void View::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_W){
+        std::cout<<"you pressed W!"<<std::endl;
+        m_camera->moveForward();
+        update();
+    }
+
+    if (event->key() == Qt::Key_S){
+        std::cout<<"you pressed W!"<<std::endl;
+        m_camera->moveBackward();
+        update();
+    }
+
+    if (event->key() == Qt::Key_D){
+        std::cout<<"you pressed W!"<<std::endl;
+        m_camera->moveRight();
+        update();
+    }
+    if (event->key() == Qt::Key_A){
+        std::cout<<"you pressed W!"<<std::endl;
+        m_camera->moveLeft();
+        update();
+    }
 
 }
 
