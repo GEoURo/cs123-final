@@ -68,7 +68,7 @@ void main(){
             vec3 texColor = texture(tex, texc).rgb;
 
             // blend the texture color with diffuse color
-            diffuse = texColor;
+            diffuse = mix(diffuse, texColor, blend);
         }
 
         // Add diffuse component
