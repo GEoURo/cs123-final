@@ -274,11 +274,10 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
         CS123SceneFileMap textureMap = m_primitives[i].material.textureMap;
         if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
             // setup texture and bind the texture
-            m_phongShader->setUniform("useTexture", 1);
-            m_phongShader->setUniform("repeatUV", vec2(textureMap.repeatU, textureMap.repeatV));
+            m_phongShader->setUniform("useTexture", true);
             m_phongShader->setTexture("tex", *(m_textures[i].get()));
         } else {
-            m_phongShader->setUniform("useTexture", 0);
+            m_phongShader->setUniform("useTexture", false);
         }
 
         // draw the primitive
