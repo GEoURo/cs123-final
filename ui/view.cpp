@@ -74,6 +74,8 @@ void View::resizeGL(int w, int h) {
 void View::loadFromParser(CS123ISceneParser *parser) {
     m_scene = std::make_unique<SceneviewScene>();
     m_scene->loadScene(parser);
+    m_camera->initializeValues();
+    update();
 }
 
 void View::settingsChanged() {

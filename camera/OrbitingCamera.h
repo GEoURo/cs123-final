@@ -28,6 +28,7 @@ public:
     virtual void mouseDown(int x, int y);
     virtual void mouseDragged(int x, int y);
     virtual void mouseScrolled(int delta);
+    void initializeValues();
     void moveForward();
     void moveBackward();
     void moveRight();

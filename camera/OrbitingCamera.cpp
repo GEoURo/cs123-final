@@ -100,6 +100,15 @@ void OrbitingCamera::updateViewMatrix() {
             glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
 }
 
+void OrbitingCamera::initializeValues() {
+    m_aspectRatio = 1;
+    m_angleX = 0;
+    m_angleY = 0;
+    m_zoomZ = -5;
+    m_zoomX = 0;
+    updateViewMatrix();
+}
+
 void OrbitingCamera::moveForward() {
     m_zoomZ += 0.1;
     updateViewMatrix();
