@@ -4,6 +4,7 @@ Makefile*
 ui_*
 *.user
 .DS_Store
+*final.exe
 final
 final.app
 qrc_resources.cpp
