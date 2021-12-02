@@ -20,6 +20,8 @@
 
 #include "OrbitingCamera.h"
 #include "utils/settings.h"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 void OrbitingCamera::setAspectRatio(float aspectRatio) {
     m_aspectRatio = aspectRatio;
@@ -36,6 +38,10 @@ glm::mat4x4 OrbitingCamera::getViewMatrix() const {
 
 glm::mat4x4 OrbitingCamera::getScaleMatrix() const {
     return m_scaleMatrix;
+}
+
+glm::vec4 OrbitingCamera::getPosition() const {
+    return m_viewMatrixInverse * glm::vec4(0, 0, 0, 1);
 }
 
 void OrbitingCamera::mouseDown(int x, int y) {
@@ -62,25 +68,68 @@ void OrbitingCamera::mouseScrolled(int delta) {
     updateViewMatrix();
 }
 
+void OrbitingCamera::orientLook(const glm::vec4 &eye, const glm::vec4 &look, const glm::vec4 &up) {
+//    glm::vec4 w = -glm::normalize(look);
+//    glm::vec4 v = glm::normalize(up - glm::dot(up, w) * w);
+//    glm::vec4 u = glm::vec4(glm::cross(glm::vec3(v), glm::vec3(w)), 0.f);
+
+//    m_rotationMatrix = glm::transpose(glm::mat4(u, v, w, glm::vec4(0.f, 0.f, 0.f, 1.f)));
+
+//    m_translationMatrix = mat4(1.f);
+//    m_translationMatrix[3] = vec4(-eye.x, -eye.y, -eye.z, 1.f);
+
+//        updateViewMatrix();
+}
+
 void OrbitingCamera::updateMatrices() {
     updateProjectionMatrix();
     updateViewMatrix();
 }
 
 void OrbitingCamera::updateProjectionMatrix() {
+    float fov = settings.cameraFov;
     // Make sure glm gets a far value that is greater than the near value.
-    // Thanks Windows for making far a keyword!
-    float farPlane = std::max(settings.cameraFar, settings.cameraNear + 100.f * FLT_EPSILON);
-    float h = farPlane * glm::tan(glm::radians(settings.cameraFov * 0.5f));
+    float nearPlane = settings.cameraNear;
+    float farPlane = std::max(settings.cameraFar, nearPlane + 100.f * FLT_EPSILON);
+    float h = farPlane * glm::tan(glm::radians(fov * 0.5f));
     float w = m_aspectRatio * h;
 
     m_scaleMatrix = glm::scale(glm::vec3(1.f / w, 1.f / h, 1.f / farPlane));
-    m_projectionMatrix = glm::perspective(glm::radians(settings.cameraFov), m_aspectRatio, settings.cameraNear, farPlane) * 0.02f;
+    m_projectionMatrix = glm::perspective(glm::radians(fov), m_aspectRatio, nearPlane, farPlane) * 0.02f;
 }
 
 void OrbitingCamera::updateViewMatrix() {
-    m_viewMatrix =
-            glm::translate(glm::vec3(0.f, 0.f, m_zoomZ)) *
-            glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
-            glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+    m_viewMatrix = glm::translate(glm::vec3(m_zoomX, 0.f, m_zoomZ)) *
+                   glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
+                   glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+    m_viewMatrixInverse = glm::inverse(m_viewMatrix);
+}
+
+void OrbitingCamera::initializeValues() {
+    m_aspectRatio = 1;
+    m_angleX = 0;
+    m_angleY = 0;
+    m_zoomZ = -5;
+    m_zoomX = 0;
+    updateViewMatrix();
+}
+
+void OrbitingCamera::moveForward() {
+    m_zoomZ += 0.1;
+    updateViewMatrix();
+}
+
+void OrbitingCamera::moveBackward() {
+    m_zoomZ -= 0.1;
+    updateViewMatrix();
+}
+
+void OrbitingCamera::moveRight() {
+    m_zoomX -= 0.1;
+    updateViewMatrix();
+}
+
+void OrbitingCamera::moveLeft() {
+    m_zoomX += 0.1;
+    updateViewMatrix();
 }

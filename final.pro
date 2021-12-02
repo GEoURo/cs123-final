@@ -23,11 +23,46 @@ win32 {
 
 SOURCES += ui/mainwindow.cpp \
     camera/OrbitingCamera.cpp \
+    gl/GLDebug.cpp \
+    gl/datatype/FBO.cpp \
+    gl/datatype/IBO.cpp \
+    gl/datatype/VAO.cpp \
+    gl/datatype/VBO.cpp \
+    gl/datatype/VBOAttribMarker.cpp \
+    gl/shaders/CS123Shader.cpp \
+    gl/shaders/Shader.cpp \
+    gl/textures/DepthBuffer.cpp \
+    gl/textures/RenderBuffer.cpp \
+    gl/textures/Texture.cpp \
+    gl/textures/Texture2D.cpp \
+    gl/textures/TextureParameters.cpp \
+    gl/textures/TextureParametersBuilder.cpp \
+    gl/util/FullScreenQuad.cpp \
+    gl/util/TextureManager.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
+    scene/OpenGLScene.cpp \
+    scene/SceneviewScene.cpp \
+    shapes/primitives/BaseShape.cpp \
+    shapes/primitives/ConeShape.cpp \
+    shapes/primitives/CubeShape.cpp \
+    shapes/primitives/CylinderShape.cpp \
+    shapes/primitives/MobiusShape.cpp \
+    shapes/primitives/OpenGLShape.cpp \
+    shapes/primitives/SphereShape.cpp \
+    shapes/primitives/TorusShape.cpp \
+    shapes/tesselators/BarrelTesselator.cpp \
+    shapes/tesselators/BaseTesselator.cpp \
+    shapes/tesselators/CircleTesselator.cpp \
+    shapes/tesselators/ConeHatTesselator.cpp \
+    shapes/tesselators/MobiusTesselator.cpp \
+    shapes/tesselators/SphereTesselator.cpp \
+    shapes/tesselators/SquareTesselator.cpp \
+    shapes/tesselators/TorusTesselator.cpp \
     ui/view.cpp \
     ui/viewformat.cpp \
     utils/CS123XmlSceneParser.cpp \
+    utils/Databinding.cpp \
     utils/RGBA.cpp \
     utils/ResourceLoader.cpp \
     utils/settings.cpp
@@ -35,6 +70,41 @@ SOURCES += ui/mainwindow.cpp \
 HEADERS += ui/mainwindow.h \
     camera/Camera.h \
     camera/OrbitingCamera.h \
+    gl/GLDebug.h \
+    gl/datatype/FBO.h \
+    gl/datatype/IBO.h \
+    gl/datatype/VAO.h \
+    gl/datatype/VBO.h \
+    gl/datatype/VBOAttribMarker.h \
+    gl/shaders/CS123Shader.h \
+    gl/shaders/Shader.h \
+    gl/shaders/ShaderAttribLocations.h \
+    gl/textures/DepthBuffer.h \
+    gl/textures/RenderBuffer.h \
+    gl/textures/Texture.h \
+    gl/textures/Texture2D.h \
+    gl/textures/TextureParameters.h \
+    gl/textures/TextureParametersBuilder.h \
+    gl/util/FullScreenQuad.h \
+    gl/util/TextureManager.h \
+    scene/OpenGLScene.h \
+    scene/SceneviewScene.h \
+    shapes/primitives/BaseShape.h \
+    shapes/primitives/ConeShape.h \
+    shapes/primitives/CubeShape.h \
+    shapes/primitives/CylinderShape.h \
+    shapes/primitives/MobiusShape.h \
+    shapes/primitives/OpenGLShape.h \
+    shapes/primitives/SphereShape.h \
+    shapes/primitives/TorusShape.h \
+    shapes/tesselators/BarrelTesselator.h \
+    shapes/tesselators/BaseTesselator.h \
+    shapes/tesselators/CircleTesselator.h \
+    shapes/tesselators/ConeHatTesselator.h \
+    shapes/tesselators/MobiusTesselator.h \
+    shapes/tesselators/SphereTesselator.h \
+    shapes/tesselators/SquareTesselator.h \
+    shapes/tesselators/TorusTesselator.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
@@ -42,6 +112,7 @@ HEADERS += ui/mainwindow.h \
     utils/CS123ISceneParser.h \
     utils/CS123SceneData.h \
     utils/CS123XmlSceneParser.h \
+    utils/Databinding.h \
     utils/RGBA.h \
     utils/ResourceLoader.h \
     utils/settings.h
@@ -83,4 +154,6 @@ DISTFILES += \
     shaders/normals/normals.gsh \
     shaders/normals/normalsArrow.gsh \
     shaders/normals/normalsArrow.frag \
-    shaders/normals/normalsArrow.vert
+    shaders/normals/normalsArrow.vert \
+    shaders/wireframe/wireframe.frag \
+    shaders/wireframe/wireframe.vert
