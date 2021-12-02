@@ -84,6 +84,7 @@ void View::settingsChanged() {
     }
 
     m_scene->settingsChanged();
+    m_camera->updateMatrices();
     update();
 }
 

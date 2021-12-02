@@ -203,7 +203,7 @@ void SceneviewScene::setGlobalData(){
 
 void SceneviewScene::setSceneUniforms(View *context) {
     Camera *camera = context->getCamera();
-    m_phongShader->setUniform("useArrowOffsets", false);
+    m_phongShader->setUniform("cameraPos", camera->getPosition());
     m_phongShader->setUniform("p" , camera->getProjectionMatrix());
     m_phongShader->setUniform("v", camera->getViewMatrix());
 }

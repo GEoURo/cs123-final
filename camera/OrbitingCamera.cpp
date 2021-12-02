@@ -22,6 +22,7 @@
 #include "utils/settings.h"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+
 void OrbitingCamera::setAspectRatio(float aspectRatio) {
     m_aspectRatio = aspectRatio;
     updateProjectionMatrix();
@@ -37,6 +38,10 @@ glm::mat4x4 OrbitingCamera::getViewMatrix() const {
 
 glm::mat4x4 OrbitingCamera::getScaleMatrix() const {
     return m_scaleMatrix;
+}
+
+glm::vec4 OrbitingCamera::getPosition() const {
+    return m_viewMatrixInverse * glm::vec4(0, 0, 0, 1);
 }
 
 void OrbitingCamera::mouseDown(int x, int y) {
@@ -94,10 +99,10 @@ void OrbitingCamera::updateProjectionMatrix() {
 }
 
 void OrbitingCamera::updateViewMatrix() {
-    m_viewMatrix =
-            glm::translate(glm::vec3(m_zoomX, 0.f, m_zoomZ)) *
-            glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
-            glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+    m_viewMatrix = glm::translate(glm::vec3(m_zoomX, 0.f, m_zoomZ)) *
+                   glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
+                   glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+    m_viewMatrixInverse = glm::inverse(m_viewMatrix);
 }
 
 void OrbitingCamera::initializeValues() {

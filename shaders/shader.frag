@@ -1,11 +1,11 @@
 #version 330 core
 
-in vec2 texc;
-in vec4 position_cameraSpace;
-in vec4 position_worldSpace;
-in vec4 normal_cameraSpace;
-in vec4 normal_worldSpace;
+// fragment shader input
+in vec4 fragPos;
+in vec4 fragNormal;
+in vec2 texCoords;
 
+// fragment shader output
 out vec4 fragColor;
 
 uniform sampler2D tex;
@@ -20,6 +20,9 @@ uniform float ks;
 uniform mat4 p;
 uniform mat4 v;
 uniform mat4 m;
+
+// position of camera
+uniform vec4 cameraPos;
 
 // Light data
 const int MAX_LIGHTS = 10;
@@ -41,19 +44,19 @@ void main(){
     vec3 color = ambient_color.xyz * ka;
 
     for (int i = 0; i < MAX_LIGHTS; i++) {
-        vec4 vertexToLight_cameraSpace = vec4(0);
+        vec4 vertexToLight = vec4(0);
 
         // The attenuation coefficient
         float attenuation = 1.f;
 
         if (lightTypes[i] == 0) {
             // Point Light
-            float d = length(vec4(lightPositions[i], 1) - position_worldSpace);
+            float d = length(vec4(lightPositions[i], 1) - fragPos);
             attenuation = min(1.f, 1.f / (lightAttenuations[i].x + d * lightAttenuations[i].y + d * d * lightAttenuations[i].z));
-            vertexToLight_cameraSpace = normalize(v * vec4(lightPositions[i], 1) - position_cameraSpace);
+            vertexToLight = normalize(vec4(lightPositions[i], 1) - fragPos);
         } else if (lightTypes[i] == 1) {
             // Dir Light
-            vertexToLight_cameraSpace = normalize(v * vec4(-lightDirections[i], 0));
+            vertexToLight = normalize(vec4(-lightDirections[i], 0));
         } else {
             // ignore the light
             continue;
@@ -65,19 +68,19 @@ void main(){
 
         if (useTexture) {
             // sample the texture color
-            vec3 texColor = texture(tex, texc).rgb;
+            vec3 texColor = texture(tex, texCoords).rgb;
 
             // blend the texture color with diffuse color
             diffuse = mix(diffuse, texColor, blend);
         }
 
         // Add diffuse component
-        float diffuseIntensity = max(0.0, dot(vertexToLight_cameraSpace, normal_cameraSpace));
+        float diffuseIntensity = max(0.0, dot(vertexToLight, fragNormal));
         color += max(vec3(0), attenuation * lightColors[i] * diffuse * diffuseIntensity);
 
         // Add specular component
-        vec4 lightReflection = normalize(reflect(-vertexToLight_cameraSpace, normal_cameraSpace));
-        vec4 eyeDirection = normalize(vec4(0,0,0,1) - position_cameraSpace);
+        vec4 lightReflection = normalize(reflect(-vertexToLight, fragNormal));
+        vec4 eyeDirection = normalize(cameraPos - fragPos);
         float specIntensity = pow(max(0.0, dot(eyeDirection, lightReflection)), shininess);
         color += max(vec3(0), attenuation * lightColors[i] * specular * specIntensity);
     }
