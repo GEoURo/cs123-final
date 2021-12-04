@@ -85,8 +85,8 @@ void main(){
         color += max(vec3(0), attenuation * lightColors[i] * specular * specIntensity);
     }
 
-    // clamp the final color
-//    color = clamp(color, 0.0, 1.0);
+    // clamp the color that are smaller than 0
+    color = max(vec3(0.f), color);
 
     // set the output value
     fragColor = vec4(color, 1);

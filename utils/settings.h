@@ -9,7 +9,6 @@
 #define SETTINGS_H
 
 #include <QObject>
-#include "RGBA.h"
 
 /**
  * @struct Settings

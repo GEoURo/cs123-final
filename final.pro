@@ -63,7 +63,6 @@ SOURCES += ui/mainwindow.cpp \
     ui/viewformat.cpp \
     utils/CS123XmlSceneParser.cpp \
     utils/Databinding.cpp \
-    utils/RGBA.cpp \
     utils/ResourceLoader.cpp \
     utils/settings.cpp
 
@@ -113,7 +112,6 @@ HEADERS += ui/mainwindow.h \
     utils/CS123SceneData.h \
     utils/CS123XmlSceneParser.h \
     utils/Databinding.h \
-    utils/RGBA.h \
     utils/ResourceLoader.h \
     utils/settings.h
 
