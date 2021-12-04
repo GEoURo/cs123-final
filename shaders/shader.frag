@@ -86,7 +86,7 @@ void main(){
     }
 
     // clamp the final color
-    color = clamp(color, 0.0, 1.0);
+//    color = clamp(color, 0.0, 1.0);
 
     // set the output value
     fragColor = vec4(color, 1);

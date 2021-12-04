@@ -5,8 +5,20 @@
 #include <QKeyEvent>
 #include <iostream>
 
+#include "gl/datatype/VAO.h"
+#include "gl/datatype/FBO.h"
+#include "gl/shaders/Shader.h"
+#include "gl/textures/Texture2D.h"
+#include "gl/util/FullScreenQuad.h"
+
 #include "camera/OrbitingCamera.h"
 #include "scene/SceneviewScene.h"
+
+#include "utils/ResourceLoader.h"
+#include "utils/settings.h"
+
+using namespace std;
+using namespace CS123::GL;
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_time(),
@@ -46,8 +58,8 @@ void View::initializeGL() {
 
     // Start a timer that will try to get 60 frames per second (the actual
     // frame rate depends on the operating system and other running programs)
-    m_time.start();
-    m_timer.start(1000 / 60);
+//    m_time.start();
+//    m_timer.start(1000 / 60);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -55,20 +67,86 @@ void View::initializeGL() {
     glFrontFace(GL_CCW);
 
     m_camera->updateMatrices();
+
+    // setup default color FBO
+    int w = width();
+    int h = height();
+    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, w * 2, h * 2,
+                                     TextureParameters::WRAP_METHOD::REPEAT,
+                                     TextureParameters::FILTER_METHOD::LINEAR,
+                                     GL_FLOAT);
+
+    m_toneMappingBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::NONE, w * 2, h * 2,
+                                           TextureParameters::WRAP_METHOD::REPEAT,
+                                           TextureParameters::FILTER_METHOD::LINEAR,
+                                           GL_FLOAT);
+
+
+    // config quad
+    m_quad = make_unique<FullScreenQuad>();
+
+    // load shaders
+    loadQuadShader();
+    loadToneMappingShader();
+}
+
+void View::loadQuadShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/fullscreenquad.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/fullscreenquad.frag");
+    m_quadShader = std::make_unique<Shader>(vertexSource, fragmentSource);
+}
+
+void View::loadToneMappingShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/fullscreenquad.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/tonemapping.frag");
+    m_toneMappingShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 }
 
 void View::paintGL() {
     if (m_scene == nullptr) {
         return;
     }
-
+    // render the scene into the color buffer
+    m_colorBuffer->bind();
     m_scene->render(this);
+    m_colorBuffer->unbind();
+
+    m_toneMappingBuffer->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_toneMappingShader->bind();
+    m_toneMappingShader->setUniform("exposure", 5.0f);
+    m_toneMappingShader->setUniform("hdrEnabled", settings.hdr);
+
+    m_colorBuffer->getColorAttachment(0).bind();
+
+    m_quad->draw();
+
+    m_colorBuffer->getColorAttachment(0).unbind();
+    m_toneMappingBuffer->unbind();
+
+    // draw the content of the color buffer using fullscreen quad
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, width() * 2, height() * 2);
+    m_quadShader->bind();
+    m_toneMappingBuffer->getColorAttachment(0).bind();
+    m_quad->draw();
+    m_toneMappingBuffer->getColorAttachment(0).unbind();
+    m_quadShader->unbind();
 }
 
 void View::resizeGL(int w, int h) {
     float ratio = w / (float)h;
     m_camera->setAspectRatio(ratio);
-    glViewport(0, 0, w, h);
+    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, w * 2, h * 2,
+                                     TextureParameters::WRAP_METHOD::REPEAT,
+                                     TextureParameters::FILTER_METHOD::LINEAR,
+                                     GL_FLOAT);
+
+    m_toneMappingBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::NONE, w * 2, h * 2,
+                                           TextureParameters::WRAP_METHOD::REPEAT,
+                                           TextureParameters::FILTER_METHOD::LINEAR,
+                                           GL_FLOAT);
 }
 
 void View::loadFromParser(CS123ISceneParser *parser) {

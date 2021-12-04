@@ -2,5 +2,10 @@
     <qresource prefix="/shaders">
         <file alias="default.frag">shaders/shader.frag</file>
         <file alias="default.vert">shaders/shader.vert</file>
+        <file alias="wireframe.frag">shaders/wireframe/wireframe.frag</file>
+        <file alias="wireframe.vert">shaders/wireframe/wireframe.vert</file>
+        <file alias="fullscreenquad.frag">shaders/fullscreenquad/fullscreenquad.frag</file>
+        <file alias="fullscreenquad.vert">shaders/fullscreenquad/fullscreenquad.vert</file>
+        <file alias="tonemapping.frag">shaders/tonemapping.frag</file>
     </qresource>
 </RCC>

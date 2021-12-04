@@ -12,6 +12,12 @@ class OrbitingCamera;
 class SceneviewScene;
 class CS123ISceneParser;
 
+namespace CS123 { namespace GL {
+class FBO;
+class Shader;
+class FullScreenQuad;
+}}
+
 class View : public QGLWidget {
     Q_OBJECT
 
@@ -33,6 +39,15 @@ private:
     std::unique_ptr<OrbitingCamera> m_camera;
     std::unique_ptr<SceneviewScene> m_scene;
 
+    std::unique_ptr<CS123::GL::FBO> m_colorBuffer;
+
+    std::unique_ptr<CS123::GL::FBO> m_toneMappingBuffer;
+    std::unique_ptr<CS123::GL::Shader> m_toneMappingShader;
+
+    std::unique_ptr<CS123::GL::Shader> m_quadShader;
+    std::unique_ptr<CS123::GL::FullScreenQuad> m_quad;
+
+
     // Overridden from QGLWidget
     void initializeGL() override;
     void paintGL() override;
@@ -46,6 +61,9 @@ private:
 
     virtual void keyPressEvent(QKeyEvent *event) override;
     virtual void keyReleaseEvent(QKeyEvent *event) override;
+
+    void loadQuadShader();
+    void loadToneMappingShader();
 
 private slots:
     void tick();
