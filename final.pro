@@ -155,6 +155,8 @@ DISTFILES += \
     shaders/normals/normalsArrow.gsh \
     shaders/normals/normalsArrow.frag \
     shaders/normals/normalsArrow.vert \
+    shaders/shadowmap.frag \
+    shaders/shadowmap.vert \
     shaders/tonemapping.frag \
     shaders/wireframe/wireframe.frag \
     shaders/wireframe/wireframe.vert

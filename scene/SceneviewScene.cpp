@@ -13,6 +13,7 @@
 
 #include "gl/shaders/CS123Shader.h"
 #include "gl/textures/Texture2D.h"
+#include "gl/textures/ShadowMap.h"
 #include "gl/util/TextureManager.h"
 
 #include "glm/gtx/transform.hpp"
@@ -30,10 +31,9 @@ SceneviewScene::SceneviewScene() :
     m_globalData({1, 1, 1, 1})
 {
     // Set up Sceneview scene
+    loadShadowShader();
     loadPhongShader();
 //    loadWireframeShader();
-//    loadNormalsShader();
-//    loadNormalsArrowShader();
 
     // setup texture manager
     m_textureManager = std::unique_ptr<TextureManager>(new TextureManager());
@@ -56,7 +56,11 @@ void SceneviewScene::loadScene(CS123ISceneParser *parser) {
     parser->getGlobalData(globalData);
     m_globalData = globalData;
 
+    // obtain the number of lights
     int numLights = parser->getNumLights();
+
+    // clear the shadow map vector
+    m_shadowMaps.clear();
 
     for (int i = 0; i < numLights; i++) {
         CS123SceneLightData lightData;
@@ -132,6 +136,12 @@ void SceneviewScene::dfsParseSceneNode(CS123SceneNode *node, glm::mat4 matrix) {
     return;
 }
 
+void SceneviewScene::loadShadowShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
+    m_shadowShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+}
+
 void SceneviewScene::loadPhongShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/default.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/default.frag");
@@ -142,20 +152,6 @@ void SceneviewScene::loadWireframeShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/wireframe.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/wireframe.frag");
     m_wireframeShader = std::make_unique<Shader>(vertexSource, fragmentSource);
-}
-
-void SceneviewScene::loadNormalsShader() {
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/normals.vert");
-    std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/normals.gsh");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/normals.frag");
-    m_normalsShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
-}
-
-void SceneviewScene::loadNormalsArrowShader() {
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/normalsArrow.vert");
-    std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/normalsArrow.gsh");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/normalsArrow.frag");
-    m_normalsArrowShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
 }
 
 void SceneviewScene::setupPrimitives() {
@@ -180,6 +176,29 @@ void SceneviewScene::updatePrimitives(bool force) {
 
 void SceneviewScene::settingsChanged() {
     updatePrimitives(false);
+}
+
+void SceneviewScene::renderShadow(View *context) {
+    // go through each light and render the shadow map
+    int w = context->width();
+    int h = context->height();
+
+    int shadowMapW = w * 4;
+    int shadowMapH = h * 4;
+
+    for (size_t i = 0; i < m_lights.size(); i++) {
+        // update the shadow map
+        ShadowMap shadowMap(shadowMapW, shadowMapH);
+        // bind the shadow map, this will set the OpenGL viewport the size of the shadow map
+        shadowMap.bind();
+
+        // render the shadow in the
+        renderShadowPass(context);
+
+        shadowMap.unbind();
+        m_shadowMaps.push_back(std::move(shadowMap));
+    }
+    return;
 }
 
 void SceneviewScene::render(View *context) {
@@ -232,6 +251,10 @@ void SceneviewScene::clearLights() {
         std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
         m_phongShader->setUniform("lightColors" + indexString, glm::vec3(0.0f, 0.0f, 0.0f));
     }
+}
+
+void SceneviewScene::renderShadowPass(View *context) {
+
 }
 
 void SceneviewScene::renderPhongPass(View *context) {

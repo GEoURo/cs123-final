@@ -7,5 +7,7 @@
         <file alias="fullscreenquad.frag">shaders/fullscreenquad/fullscreenquad.frag</file>
         <file alias="fullscreenquad.vert">shaders/fullscreenquad/fullscreenquad.vert</file>
         <file alias="tonemapping.frag">shaders/tonemapping.frag</file>
+        <file alias="shadowmap.frag">shaders/shadowmap.frag</file>
+        <file alias="shadowmap.vert">shaders/shadowmap.vert</file>
     </qresource>
 </RCC>

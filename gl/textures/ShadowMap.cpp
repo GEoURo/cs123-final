@@ -42,6 +42,9 @@ void ShadowMap::setupDepthMap() {
 
 void ShadowMap::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
+
+    // Resize the viewport to our FBO's size
+    glViewport(0, 0, m_width, m_height);
 }
 
 void ShadowMap::unbind() {

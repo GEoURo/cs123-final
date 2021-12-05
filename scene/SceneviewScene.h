@@ -8,6 +8,7 @@
 
 namespace CS123 { namespace GL {
     class Shader;
+    class ShadowMap;
     class CS123Shader;
     class Texture2D;
 }}
@@ -40,7 +41,13 @@ public:
     SceneviewScene();
     virtual ~SceneviewScene();
 
+    // render the scene with Phong Illumination model
     virtual void render(View *context) override;
+
+    // render the shadow map of the scene of each light source
+    void renderShadow(View *context);
+
+    // settings update function
     virtual void settingsChanged() override;
 
     // load the scene from a parser
@@ -57,14 +64,27 @@ private:
     // load texture
     void loadTextures();
 
+    std::vector<std::shared_ptr<CS123::GL::Texture2D>> m_textures;
+    std::unique_ptr<TextureManager> m_textureManager;
+
+    // shader loader functions
+    void loadShadowShader();
     void loadPhongShader();
     void loadWireframeShader();
-    void loadNormalsShader();
-    void loadNormalsArrowShader();
+
+    std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
+    std::unique_ptr<CS123::GL::Shader> m_wireframeShader;
+    std::unique_ptr<CS123::GL::Shader> m_shadowShader;
 
     // shape primitives operation
     void setupPrimitives();
     void updatePrimitives(bool force);
+
+    // gl shapes
+    std::unique_ptr<CubeShape> m_cube;
+    std::unique_ptr<ConeShape> m_cone;
+    std::unique_ptr<CylinderShape> m_cylinder;
+    std::unique_ptr<SphereShape> m_sphere;
 
     void setSceneUniforms(View *context);
     void setMatrixUniforms(CS123::GL::Shader *shader, View *context);
@@ -73,6 +93,7 @@ private:
     void setLights();
     void clearLights();
 
+    void renderShadowPass(View *context);
     void renderPhongPass(View *context);
     void renderWireframePass(View *context);
 
@@ -81,19 +102,8 @@ private:
 
     void renderPrimitive(PrimitiveType type);
 
-    std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
-    std::unique_ptr<CS123::GL::Shader> m_wireframeShader;
-    std::unique_ptr<CS123::GL::Shader> m_normalsShader;
-    std::unique_ptr<CS123::GL::Shader> m_normalsArrowShader;
-
-    std::vector<std::shared_ptr<CS123::GL::Texture2D>> m_textures;
-    std::unique_ptr<TextureManager> m_textureManager;
-
-    // gl shapes
-    std::unique_ptr<CubeShape> m_cube;
-    std::unique_ptr<ConeShape> m_cone;
-    std::unique_ptr<CylinderShape> m_cylinder;
-    std::unique_ptr<SphereShape> m_sphere;
+    // shadow maps
+    std::vector<CS123::GL::ShadowMap> m_shadowMaps;
 };
 
 #endif // SCENEVIEWSCENE_H
