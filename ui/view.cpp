@@ -115,7 +115,8 @@ void View::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_toneMappingShader->bind();
-    m_toneMappingShader->setUniform("exposure", 2.0f);
+    m_toneMappingShader->setUniform("exposure", settings.exposure);
+    m_toneMappingShader->setUniform("gamma", settings.gamma);
     m_toneMappingShader->setUniform("hdrEnabled", settings.hdr);
 
     m_colorBuffer->getColorAttachment(0).bind();

@@ -39,6 +39,7 @@ private:
 
     void setupDataBindings();
     void initializeCameraFrustum();
+    void initializeHDRSettings();
 };
 
 #endif // MAINWINDOW_H

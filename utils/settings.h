@@ -40,6 +40,10 @@ struct Settings {
     float cameraFar;            // The distance from the camera to the far clipping plane.
     float cameraDof;
 
+    // HDR
+    float exposure;
+    float gamma;
+
     bool drawWireframe;
     bool drawNormals;
 

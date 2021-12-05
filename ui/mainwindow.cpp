@@ -79,7 +79,11 @@ void MainWindow::setupDataBindings() {
     BIND(FloatBinding::bindSliderAndTextbox(ui->farSlider, ui->farInput, settings.cameraFar, 0.1f, 50.f));
     BIND(FloatBinding::bindSliderAndTextbox(ui->dofSlider, ui->dofInput, settings.cameraDof, 1.f, 179.f));
 
+    BIND(FloatBinding::bindSliderAndTextbox(ui->exposureSlider, ui->exposureInput, settings.exposure, 0.1f, 10.f));
+    BIND(FloatBinding::bindSliderAndTextbox(ui->gammaSlider, ui->gammaInput, settings.gamma, 0.1f, 5.f));
+
     initializeCameraFrustum();
+    initializeHDRSettings();
 
 #undef BIND
 }
@@ -88,4 +92,9 @@ void MainWindow::initializeCameraFrustum() {
     ui->fovInput->setText(QString::number(55, 'f', 1));
     ui->nearInput->setText(QString::number(.1, 'f', 1));
     ui->farInput->setText(QString::number(50, 'f', 1));
+}
+
+void MainWindow::initializeHDRSettings() {
+    ui->exposureInput->setText(QString::number(1, 'f', 1));
+    ui->gammaInput->setText(QString::number(2.2, 'f', 1));
 }
