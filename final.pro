@@ -33,6 +33,7 @@ SOURCES += ui/mainwindow.cpp \
     gl/shaders/Shader.cpp \
     gl/textures/DepthBuffer.cpp \
     gl/textures/RenderBuffer.cpp \
+    gl/textures/ShadowMap.cpp \
     gl/textures/Texture.cpp \
     gl/textures/Texture2D.cpp \
     gl/textures/TextureParameters.cpp \
@@ -80,6 +81,7 @@ HEADERS += ui/mainwindow.h \
     gl/shaders/ShaderAttribLocations.h \
     gl/textures/DepthBuffer.h \
     gl/textures/RenderBuffer.h \
+    gl/textures/ShadowMap.h \
     gl/textures/Texture.h \
     gl/textures/Texture2D.h \
     gl/textures/TextureParameters.h \

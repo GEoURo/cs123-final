@@ -10,6 +10,7 @@ namespace CS123 { namespace GL {
 class Texture2D : public Texture {
 public:
     Texture2D(unsigned char *data, int width, int height, GLenum type = GL_UNSIGNED_BYTE);
+    Texture2D(unsigned char *data, int width, int height, GLenum internalFormat, GLenum format, GLenum type);
 
     virtual void bind() const override;
     virtual void unbind() const override;

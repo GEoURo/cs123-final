@@ -106,7 +106,6 @@ void OrbitingCamera::updateViewMatrix() {
 }
 
 void OrbitingCamera::initializeValues() {
-    m_aspectRatio = 1;
     m_angleX = 0;
     m_angleY = 0;
     m_zoomZ = -5;
