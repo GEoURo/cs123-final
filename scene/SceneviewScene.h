@@ -68,13 +68,15 @@ private:
     std::unique_ptr<TextureManager> m_textureManager;
 
     // shader loader functions
-    void loadShadowShader();
+    void loadShadow_directionShader();
+    void loadShadow_pointShader();
     void loadPhongShader();
     void loadWireframeShader();
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
     std::unique_ptr<CS123::GL::Shader> m_wireframeShader;
-    std::unique_ptr<CS123::GL::Shader> m_shadowShader;
+    std::unique_ptr<CS123::GL::Shader> m_shadow_direcitonShader;
+    std::unique_ptr<CS123::GL::Shader> m_shadow_pointShader;
 
     // shape primitives operation
     void setupPrimitives();
@@ -93,10 +95,12 @@ private:
     void setLights();
     void clearLights();
 
-    void renderShadowPass(View *context);
+    void renderDirectionShadow(View *context , CS123SceneLightData &light);
+    void renderPointShadow(View *context , CS123SceneLightData &light);
     void renderPhongPass(View *context);
     void renderWireframePass(View *context);
 
+    void renderScene_directionShadow();
     void renderGeometryAsFilledPolygons();
     void renderGeometryAsWireframe();
 

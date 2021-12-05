@@ -31,7 +31,8 @@ SceneviewScene::SceneviewScene() :
     m_globalData({1, 1, 1, 1})
 {
     // Set up Sceneview scene
-    loadShadowShader();
+    loadShadow_directionShader();
+    loadShadow_pointShader();
     loadPhongShader();
 //    loadWireframeShader();
 
@@ -136,10 +137,16 @@ void SceneviewScene::dfsParseSceneNode(CS123SceneNode *node, glm::mat4 matrix) {
     return;
 }
 
-void SceneviewScene::loadShadowShader() {
+void SceneviewScene::loadShadow_directionShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
-    m_shadowShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+    m_shadow_direcitonShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+}
+
+void SceneviewScene::loadShadow_pointShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
+    m_shadow_pointShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 }
 
 void SceneviewScene::loadPhongShader() {
@@ -193,7 +200,15 @@ void SceneviewScene::renderShadow(View *context) {
         shadowMap.bind();
 
         // render the shadow in the
-        renderShadowPass(context);
+        switch (m_lights[i].type) {
+            case LightType::LIGHT_DIRECTIONAL:
+                renderDirectionShadow(context, m_lights[i]);
+                break;
+            case LightType::LIGHT_POINT:
+                renderPointShadow(context, m_lights[i]);
+                break;
+        }
+
 
         shadowMap.unbind();
         m_shadowMaps.push_back(std::move(shadowMap));
@@ -253,7 +268,24 @@ void SceneviewScene::clearLights() {
     }
 }
 
-void SceneviewScene::renderShadowPass(View *context) {
+void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &light) {
+    glm::mat4 lightProjection, lightView, lightSpaceMatrix;
+    float near_plane = 1.f, far_plane = 7.5f;
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    lightView = glm::lookAt(glm::vec3(-light.dir),
+                                      glm::vec3( 0.0f, 0.0f,  0.0f),
+                                      glm::vec3( 0.0f, 1.0f,  0.0f));
+    lightSpaceMatrix = lightProjection * lightView;
+
+    m_shadow_direcitonShader->bind();
+    m_shadow_direcitonShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    renderScene_directionShadow();
+
+    m_shadow_direcitonShader->unbind();
+}
+
+void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &light) {
 
 }
 
@@ -266,6 +298,7 @@ void SceneviewScene::renderPhongPass(View *context) {
     setLights();
     setSceneUniforms(context);
     setMatrixUniforms(m_phongShader.get(), context);
+
     renderGeometryAsFilledPolygons();
 
     m_phongShader->unbind();
@@ -278,6 +311,20 @@ void SceneviewScene::renderWireframePass(View *context) {
     renderGeometryAsWireframe();
 
     m_wireframeShader->unbind();
+}
+
+void SceneviewScene::renderScene_directionShadow() {
+    // setup polygon mode
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    for (size_t i = 0; i < m_primitives.size(); i++) {
+
+        // setup CTM
+        m_shadow_direcitonShader->setUniform("model", m_primitiveTrans[i]);
+
+        // draw the primitive
+        renderPrimitive(m_primitives[i].type);
+    }
 }
 
 void SceneviewScene::renderGeometryAsFilledPolygons() {

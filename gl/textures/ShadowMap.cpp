@@ -21,8 +21,13 @@ ShadowMap::ShadowMap(int width, int height) :
     // generate depth map
     setupDepthMap();
 
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
     // This will make sure your framebuffer was generated correctly!
     checkFramebufferStatus();
+
+
 
     // Call unbind()
     unbind();
