@@ -1,6 +1,6 @@
 #version 330 core
 
-// fragment shader input
+// fragment shader input in world space
 in vec4 fragPos;
 in vec4 fragNormal;
 in vec2 texCoords;
@@ -32,6 +32,10 @@ uniform vec3 lightDirections[MAX_LIGHTS];   // For directional lights
 uniform vec3 lightAttenuations[MAX_LIGHTS]; // Constant, linear, and quadratic term
 uniform vec3 lightColors[MAX_LIGHTS];
 
+// shadow mapping
+uniform mat4 lightSpaceMatrix[MAX_LIGHTS];
+uniform sampler2D lightShadow[MAX_LIGHTS];
+
 // Material data
 uniform vec3 ambient_color;
 uniform vec3 diffuse_color;
@@ -39,6 +43,14 @@ uniform vec3 specular_color;
 uniform float shininess;
 uniform float blend;
 uniform vec2 repeatUV;
+
+float directionShadowCalculation() {
+    return 0.f;
+}
+
+float pointShadowCalculation() {
+    return 0.f;
+}
 
 void main(){
     vec3 color = ambient_color.xyz * ka;
@@ -48,15 +60,20 @@ void main(){
 
         // The attenuation coefficient
         float attenuation = 1.f;
+        float shadow = 0.f;
 
         if (lightTypes[i] == 0) {
             // Point Light
             float d = length(vec4(lightPositions[i], 1) - fragPos);
             attenuation = min(1.f, 1.f / (lightAttenuations[i].x + d * lightAttenuations[i].y + d * d * lightAttenuations[i].z));
             vertexToLight = normalize(vec4(lightPositions[i], 1) - fragPos);
+            // TODO: point light shadow
+
         } else if (lightTypes[i] == 1) {
             // Dir Light
             vertexToLight = normalize(vec4(-lightDirections[i], 0));
+            // TODO: directional light shadow
+
         } else {
             // ignore the light
             continue;

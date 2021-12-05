@@ -137,7 +137,7 @@ void View::paintGL() {
 
     // draw the content of the color buffer using fullscreen quad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 0, width() * 2, height() * 2);
+    glViewport(0, 0, width(), height());
     m_quadShader->bind();
     m_toneMappingBuffer->getColorAttachment(0).bind();
     m_quad->draw();
