@@ -36,6 +36,9 @@ private:
 
     bool m_captureMouse;
 
+    int m_fboW;
+    int m_fboH;
+
     std::unique_ptr<OrbitingCamera> m_camera;
     std::unique_ptr<SceneviewScene> m_scene;
 
@@ -64,6 +67,7 @@ private:
 
     void loadQuadShader();
     void loadToneMappingShader();
+    void updateFBO();
 
 private slots:
     void tick();

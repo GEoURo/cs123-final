@@ -66,21 +66,18 @@ void View::initializeGL() {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    m_camera->updateMatrices();
-
     // setup default color FBO
     int w = width();
     int h = height();
-    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, w * 2, h * 2,
-                                     TextureParameters::WRAP_METHOD::REPEAT,
-                                     TextureParameters::FILTER_METHOD::LINEAR,
-                                     GL_FLOAT);
 
-    m_toneMappingBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::NONE, w * 2, h * 2,
-                                           TextureParameters::WRAP_METHOD::REPEAT,
-                                           TextureParameters::FILTER_METHOD::LINEAR,
-                                           GL_FLOAT);
+    float ratio = w / (float)h;
+    m_camera->setAspectRatio(ratio);
+    m_camera->updateMatrices();
 
+    m_fboW = w;
+    m_fboH = h;
+
+    updateFBO();
 
     // config quad
     m_quad = make_unique<FullScreenQuad>();
@@ -100,6 +97,18 @@ void View::loadToneMappingShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/fullscreenquad.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/tonemapping.frag");
     m_toneMappingShader = std::make_unique<Shader>(vertexSource, fragmentSource);
+}
+
+void View::updateFBO() {
+    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, m_fboW, m_fboH,
+                                     TextureParameters::WRAP_METHOD::REPEAT,
+                                     TextureParameters::FILTER_METHOD::LINEAR,
+                                     GL_FLOAT);
+
+    m_toneMappingBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::NONE, m_fboW, m_fboH,
+                                           TextureParameters::WRAP_METHOD::REPEAT,
+                                           TextureParameters::FILTER_METHOD::LINEAR,
+                                           GL_FLOAT);
 }
 
 void View::paintGL() {
@@ -139,15 +148,10 @@ void View::paintGL() {
 void View::resizeGL(int w, int h) {
     float ratio = w / (float)h;
     m_camera->setAspectRatio(ratio);
-    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, w * 2, h * 2,
-                                     TextureParameters::WRAP_METHOD::REPEAT,
-                                     TextureParameters::FILTER_METHOD::LINEAR,
-                                     GL_FLOAT);
+    m_fboW = w;
+    m_fboH = h;
 
-    m_toneMappingBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::NONE, w * 2, h * 2,
-                                           TextureParameters::WRAP_METHOD::REPEAT,
-                                           TextureParameters::FILTER_METHOD::LINEAR,
-                                           GL_FLOAT);
+    updateFBO();
 }
 
 void View::loadFromParser(CS123ISceneParser *parser) {
