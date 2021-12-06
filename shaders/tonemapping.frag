@@ -9,8 +9,7 @@ uniform float exposure;
 uniform float gamma;
 uniform bool hdrEnabled;
 
-void main(void)
-{
+void main(void) {
     vec3 hdrColor = texture(hdrBuffer, texCoord).rgb;
     if (!hdrEnabled) {
         fragColor = vec4(hdrColor, 1.0);

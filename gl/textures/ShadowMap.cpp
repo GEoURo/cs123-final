@@ -21,13 +21,8 @@ ShadowMap::ShadowMap(int width, int height) :
     // generate depth map
     setupDepthMap();
 
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-
     // This will make sure your framebuffer was generated correctly!
     checkFramebufferStatus();
-
-
 
     // Call unbind()
     unbind();
@@ -43,6 +38,8 @@ void ShadowMap::setupDepthMap() {
     param.applyTo(m_depthMap);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap.id(), 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
 }
 
 void ShadowMap::bind() {

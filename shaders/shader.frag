@@ -1,25 +1,26 @@
 #version 330 core
 
 // fragment shader input in world space
-in vec4 fragPos;
-in vec4 fragNormal;
-in vec2 texCoords;
+in VS_OUT {
+    vec4 fragPos;
+    vec4 fragNormal;
+    vec2 texCoords;
+} fs_in;
 
 // fragment shader output
 out vec4 fragColor;
 
-uniform sampler2D tex;
+// settings
 uniform bool useTexture;
+uniform bool useShadow;
+
+// diffuse texture map
+uniform sampler2D tex;
 
 // global data
 uniform float ka;
 uniform float kd;
 uniform float ks;
-
-// Transformation matrices
-uniform mat4 p;
-uniform mat4 v;
-uniform mat4 m;
 
 // position of camera
 uniform vec4 cameraPos;
@@ -32,9 +33,15 @@ uniform vec3 lightDirections[MAX_LIGHTS];   // For directional lights
 uniform vec3 lightAttenuations[MAX_LIGHTS]; // Constant, linear, and quadratic term
 uniform vec3 lightColors[MAX_LIGHTS];
 
-// shadow mapping
-uniform mat4 lightSpaceMatrix[MAX_LIGHTS];
-uniform sampler2D lightShadow[MAX_LIGHTS];
+// directional shadow mapping
+uniform int dirLightID;
+uniform mat4 dirLightSpaceMat;
+uniform sampler2D dirLightShadowMap;
+
+// point shadow mapping
+uniform int pointLightID;
+uniform mat4 pointLightSpaceMat;
+uniform samplerCube pointLightShadowMap;
 
 // Material data
 uniform vec3 ambient_color;
@@ -64,15 +71,22 @@ void main(){
 
         if (lightTypes[i] == 0) {
             // Point Light
-            float d = length(vec4(lightPositions[i], 1) - fragPos);
+            float d = length(vec4(lightPositions[i], 1) - fs_in.fragPos);
             attenuation = min(1.f, 1.f / (lightAttenuations[i].x + d * lightAttenuations[i].y + d * d * lightAttenuations[i].z));
-            vertexToLight = normalize(vec4(lightPositions[i], 1) - fragPos);
+            vertexToLight = normalize(vec4(lightPositions[i], 1) - fs_in.fragPos);
             // TODO: point light shadow
-
+            if (i == pointLightID) {
+                // only calculate shadow for a designated point light
+                shadow = pointShadowCalculation();
+            }
         } else if (lightTypes[i] == 1) {
             // Dir Light
             vertexToLight = normalize(vec4(-lightDirections[i], 0));
             // TODO: directional light shadow
+            if (i == dirLightID) {
+                // only calculate shadow for a designated directional light
+                shadow = directionShadowCalculation();
+            }
 
         } else {
             // ignore the light
@@ -85,21 +99,23 @@ void main(){
 
         if (useTexture) {
             // sample the texture color
-            vec3 texColor = texture(tex, texCoords).rgb;
+            vec3 texColor = texture(tex, fs_in.texCoords).rgb;
 
             // blend the texture color with diffuse color
             diffuse = mix(diffuse, texColor, blend);
         }
 
         // Add diffuse component
-        float diffuseIntensity = max(0.0, dot(vertexToLight, fragNormal));
-        color += max(vec3(0), attenuation * lightColors[i] * diffuse * diffuseIntensity);
+        float diffuseIntensity = max(0.0, dot(vertexToLight, fs_in.fragNormal));
+        diffuse = max(vec3(0), attenuation * lightColors[i] * diffuse * diffuseIntensity);
 
         // Add specular component
-        vec4 lightReflection = normalize(reflect(-vertexToLight, fragNormal));
-        vec4 eyeDirection = normalize(cameraPos - fragPos);
+        vec4 lightReflection = normalize(reflect(-vertexToLight, fs_in.fragNormal));
+        vec4 eyeDirection = normalize(cameraPos - fs_in.fragPos);
         float specIntensity = pow(max(0.0, dot(eyeDirection, lightReflection)), shininess);
-        color += max(vec3(0), attenuation * lightColors[i] * specular * specIntensity);
+        specular = max(vec3(0), attenuation * lightColors[i] * specular * specIntensity);
+
+        color += (1.0 - shadow) * (diffuse + specular);
     }
 
     // clamp the color that are smaller than 0

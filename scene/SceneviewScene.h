@@ -9,6 +9,7 @@
 namespace CS123 { namespace GL {
     class Shader;
     class ShadowMap;
+    class ShadowCube;
     class CS123Shader;
     class Texture2D;
 }}
@@ -107,7 +108,10 @@ private:
     void renderPrimitive(PrimitiveType type);
 
     // shadow maps
-    std::vector<CS123::GL::ShadowMap> m_shadowMaps;
+    std::unique_ptr<CS123::GL::ShadowMap> m_dirShadowMap;
+    std::unique_ptr<CS123::GL::ShadowCube> m_pointShadowMap;
+    int m_dirShadowID;
+    int m_pointShadowID;
 };
 
 #endif // SCENEVIEWSCENE_H

@@ -14,6 +14,7 @@
 #include "gl/shaders/CS123Shader.h"
 #include "gl/textures/Texture2D.h"
 #include "gl/textures/ShadowMap.h"
+#include "gl/textures/ShadowCube.h"
 #include "gl/util/TextureManager.h"
 
 #include "glm/gtx/transform.hpp"
@@ -59,9 +60,6 @@ void SceneviewScene::loadScene(CS123ISceneParser *parser) {
 
     // obtain the number of lights
     int numLights = parser->getNumLights();
-
-    // clear the shadow map vector
-    m_shadowMaps.clear();
 
     for (int i = 0; i < numLights; i++) {
         CS123SceneLightData lightData;
@@ -144,8 +142,9 @@ void SceneviewScene::loadShadow_directionShader() {
 }
 
 void SceneviewScene::loadShadow_pointShader() {
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.vert");
+    std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.gsh");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.frag");
     m_shadow_pointShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 }
 
@@ -193,25 +192,36 @@ void SceneviewScene::renderShadow(View *context) {
     int shadowMapW = w * 4;
     int shadowMapH = h * 4;
 
-    for (size_t i = 0; i < m_lights.size(); i++) {
-        // update the shadow map
-        ShadowMap shadowMap(shadowMapW, shadowMapH);
-        // bind the shadow map, this will set the OpenGL viewport the size of the shadow map
-        shadowMap.bind();
+    m_dirShadowMap = make_unique<ShadowMap>(shadowMapW, shadowMapH);
+    m_pointShadowMap = make_unique<ShadowCube>(shadowMapW, shadowMapH);
 
-        // render the shadow in the
+    m_dirShadowID = -1;
+    m_pointShadowID = -1;
+
+    for (size_t i = 0; i < m_lights.size(); i++) {
+        // render the shadow in the light's direction
         switch (m_lights[i].type) {
             case LightType::LIGHT_DIRECTIONAL:
-                renderDirectionShadow(context, m_lights[i]);
+            {
+                if (m_dirShadowID == -1 && m_lights[i].id < 10) {
+                    // only consider the first encountered light
+                    m_dirShadowID = m_lights[i].id;
+                    renderDirectionShadow(context, m_lights[i]);
+                }
                 break;
+            }
             case LightType::LIGHT_POINT:
-                renderPointShadow(context, m_lights[i]);
+            {
+                if (m_pointShadowID == -1 && m_lights[i].id < 10) {
+                    // only consider the first encountered light
+                    m_pointShadowID = m_lights[i].id;
+                    renderPointShadow(context, m_lights[i]);
+                }
+                break;
+            }
+            default:
                 break;
         }
-
-
-        shadowMap.unbind();
-        m_shadowMaps.push_back(std::move(shadowMap));
     }
     return;
 }
@@ -277,16 +287,60 @@ void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &
                                       glm::vec3( 0.0f, 1.0f,  0.0f));
     lightSpaceMatrix = lightProjection * lightView;
 
+    m_dirShadowMap->bind();
     m_shadow_direcitonShader->bind();
+
     m_shadow_direcitonShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
     glClear(GL_DEPTH_BUFFER_BIT);
+
     renderScene_directionShadow();
 
     m_shadow_direcitonShader->unbind();
+    m_dirShadowMap->unbind();
 }
 
 void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &light) {
+    int shadowW = context->width() * 4;
+    int shadowH = context->height() * 4;
+    // basic config for the light space perspective
+    float aspect = (float)shadowW/(float)shadowH;
+    float near = 1.0f;
+    float far = 25.0f;
 
+    glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), aspect, near, far);
+    vec3 lightPos = light.pos.xyz();
+    // setup shadow transformation for each face
+    std::vector<glm::mat4> shadowTransforms;
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+    // bind the shadow map and the shader
+    m_dirShadowMap->bind();
+    m_shadow_pointShader->bind();
+
+    // set uniform variables
+    for (int i = 0; i < 6; i++) {
+        m_shadow_pointShader->setUniform("shadowmatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+    }
+    m_shadow_pointShader->setUniform("farPlane", far);
+    m_shadow_pointShader->setUniform("lightPos", lightPos);
+
+    // render the scene
+    for (size_t i = 0; i < m_primitives.size(); i++) {
+        // setup CTM
+        m_shadow_pointShader->setUniform("model", m_primitiveTrans[i]);
+
+        // draw the primitive
+        renderPrimitive(m_primitives[i].type);
+    }
+
+    // unbind the shadow map and the shader
+    m_shadow_pointShader->unbind();
+    m_dirShadowMap->unbind();
 }
 
 void SceneviewScene::renderPhongPass(View *context) {

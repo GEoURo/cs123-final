@@ -33,9 +33,11 @@ SOURCES += ui/mainwindow.cpp \
     gl/shaders/Shader.cpp \
     gl/textures/DepthBuffer.cpp \
     gl/textures/RenderBuffer.cpp \
+    gl/textures/ShadowCube.cpp \
     gl/textures/ShadowMap.cpp \
     gl/textures/Texture.cpp \
     gl/textures/Texture2D.cpp \
+    gl/textures/TextureCube.cpp \
     gl/textures/TextureParameters.cpp \
     gl/textures/TextureParametersBuilder.cpp \
     gl/util/FullScreenQuad.cpp \
@@ -81,9 +83,11 @@ HEADERS += ui/mainwindow.h \
     gl/shaders/ShaderAttribLocations.h \
     gl/textures/DepthBuffer.h \
     gl/textures/RenderBuffer.h \
+    gl/textures/ShadowCube.h \
     gl/textures/ShadowMap.h \
     gl/textures/Texture.h \
     gl/textures/Texture2D.h \
+    gl/textures/TextureCube.h \
     gl/textures/TextureParameters.h \
     gl/textures/TextureParametersBuilder.h \
     gl/util/FullScreenQuad.h \
@@ -155,6 +159,9 @@ DISTFILES += \
     shaders/normals/normalsArrow.gsh \
     shaders/normals/normalsArrow.frag \
     shaders/normals/normalsArrow.vert \
+    shaders/pointShadow.frag \
+    shaders/pointShadow.gsh \
+    shaders/pointShadow.vert \
     shaders/shadowmap.frag \
     shaders/shadowmap.vert \
     shaders/tonemapping.frag \
