@@ -50,6 +50,7 @@ public:
 
     // settings update function
     virtual void settingsChanged() override;
+    void updateFBO(int w, int h);
 
     // load the scene from a parser
     void loadScene(CS123ISceneParser *parser);

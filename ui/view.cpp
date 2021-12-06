@@ -109,6 +109,9 @@ void View::updateFBO() {
                                            TextureParameters::WRAP_METHOD::REPEAT,
                                            TextureParameters::FILTER_METHOD::LINEAR,
                                            GL_FLOAT);
+
+    // make the shadow map twice the size of the screen size
+    if (m_scene) { m_scene->updateFBO(m_fboW * 2, m_fboH * 2); }
 }
 
 void View::paintGL() {
@@ -164,6 +167,8 @@ void View::resizeGL(int w, int h) {
 void View::loadFromParser(CS123ISceneParser *parser) {
     m_scene = std::make_unique<SceneviewScene>();
     m_scene->loadScene(parser);
+    // make the shadow map twice the size of the screen size
+    m_scene->updateFBO(m_fboW * 2, m_fboH * 2);
     m_camera->initializeValues();
     update();
 }

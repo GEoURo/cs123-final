@@ -54,15 +54,18 @@ float directionShadowCalculation() {
 }
 
 float pointShadowCalculation(vec4 position) {
-    vec3 fragToLight = position.xyz - lightPositions[pointLightID];
-    float closestDepth = texture(pointLightShadowMap, fragToLight).r;
+    // calculate the vector from light to fragment position
+    vec3 lightToPos = position.xyz - lightPositions[pointLightID];
+
+    // sample from the cube map to retrieve depth info
+    float closestDepth = texture(pointLightShadowMap, lightToPos).r;
 
     // transform the depth from normalized value to actual value
     closestDepth *= pointLightFarPlane;
 
-    float currentDepth = length(fragToLight);
+    float currentDepth = length(lightToPos);
     float bias = 0.05;
-    float shadow = currentDepth - bias > closestDepth ? 0.5 : 0.0;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
     return shadow;
 }
 
