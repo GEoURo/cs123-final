@@ -50,39 +50,35 @@ uniform vec2 repeatUV;
 uniform sampler2D diffuseTexture;
 
 float directionShadowCalculation(vec4 position) {
+    // convert the fragPos to light space
+    vec4 fragPosLightSpace = dirLightSpaceMat * position;
     // perform perspective divide
-    vec3 projCoords = position.xyz / position.w;
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-
-    //check z value
-    if(projCoords.z > 1.0){
-        projCoords.z = 1.0;
-    }
-
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    //float closestDepth = texture(dirLightShadowMap, projCoords.xy).r;
 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 
-    //add bias
+    // add bias
     vec3 lightDir = lightDirections[dirLightID];
     lightDir = normalize(lightDir);
     float dotLightNormal = dot(lightDir, vec3(fragNormal));
-    float bias = max(0.05*(1.0-dotLightNormal),0.005);
+    float bias = max(0.05*(1.0-dotLightNormal), 0.005);
 
-    // check whether current frag pos is in shadow
-    //float shadow = (currentDepth + bias) > closestDepth  ? 1.0 : 0.0;
-
-    //percentage-closer filter
+    // percentage-closer filter
     float shadow = 0.0;
     vec2 texelSize = 1.0/textureSize(dirLightShadowMap,0);
     for(int x=-1;x<=1;x++){
         for(int y=-1;y<=1;y++){
             float closestDepth = texture(dirLightShadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
-            shadow+= (currentDepth + bias) > closestDepth  ? 1.0 : 0.0;
+            shadow += (currentDepth - bias) > closestDepth ? 0.5 : 0.0;
         }
+    }
+
+    //check z value
+    if (projCoords.z > 1.0){
+        shadow = 0.f;
     }
 
     //return shadow;
@@ -95,16 +91,17 @@ float pointShadowCalculation(vec4 position) {
 
     // sample from the cube map to retrieve depth info
     float closestDepth = texture(pointLightShadowMap, lightToPos).r;
+
     // transform the depth from normalized value to actual value
     closestDepth *= pointLightFarPlane;
 
     float currentDepth = length(lightToPos);
     float bias = 0.05;
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth - bias > closestDepth ? 0.5 : 0.0;
     return shadow;
 }
 
-void main(){
+void main() {
     vec3 color = ambient_color.xyz * ka;
 
     for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -122,7 +119,7 @@ void main(){
             // point light shadow
             if (useShadow && i == pointLightID) {
                 // only calculate shadow for a designated point light
-                shadow = pointShadowCalculation(fragPos);
+//                shadow = pointShadowCalculation(fragPos);
             }
         } else if (lightTypes[i] == 1) {
             // Dir Light
@@ -130,7 +127,7 @@ void main(){
             // directional light shadow
             if (useShadow && i == dirLightID) {
                 // only calculate shadow for a designated directional light
-                shadow = directionShadowCalculation(fragPos);
+//                shadow = directionShadowCalculation(fragPos);
             }
         } else {
             // ignore the light

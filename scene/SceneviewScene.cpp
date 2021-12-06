@@ -398,29 +398,18 @@ void SceneviewScene::setSceneUniforms(View *context) {
 }
 
 void SceneviewScene::setShadowMaps() {
-    // setup shadow mapping uniforms
-    if (!settings.shadowMapping) {
-        m_phongShader->setUniform("useShadow", false);
-    } else {
-        // global switch
-        m_phongShader->setUniform("useShadow", true);
+    // global switch
+    m_phongShader->setUniform("useShadow", settings.shadowMapping);
 
-        // point light uniforms
-        m_phongShader->setUniform("pointLightID", m_pointShadowID);
-        if (m_pointShadowID != -1) {
-            // if id is not -1, then it means there is a shadow map for point light
-            m_phongShader->setUniform("pointLightFarPlane", pointLightFar);
-            m_phongShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
-        }
+    // point light uniforms
+    m_phongShader->setUniform("pointLightID", m_pointShadowID);
+    m_phongShader->setUniform("pointLightFarPlane", pointLightFar);
+    m_phongShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
 
-        // dir light uniforms
-        m_phongShader->setUniform("dirLightID", m_dirShadowID);
-        if (m_dirShadowID != -1) {
-            // if id is not -1, then it means there is a shadow map for directional light
-            m_phongShader->setUniform("dirLightSpaceMat", dirLightSpaceMatrix);
-            m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
-        }
-    }
+    // dir light uniforms
+    m_phongShader->setUniform("dirLightID", m_dirShadowID);
+    m_phongShader->setUniform("dirLightSpaceMat", dirLightSpaceMatrix);
+    m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
 }
 
 void SceneviewScene::setLights() {
