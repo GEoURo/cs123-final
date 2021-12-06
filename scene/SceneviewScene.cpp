@@ -335,7 +335,7 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
         if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
             // setup texture and bind the texture
             m_phongShader->setUniform("useTexture", true);
-            m_phongShader->setTexture("tex", *(m_textures[i].get()));
+            m_phongShader->setTexture("diffuseTexture", *(m_textures[i].get()));
         } else {
             m_phongShader->setUniform("useTexture", false);
         }

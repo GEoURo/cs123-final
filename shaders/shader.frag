@@ -12,9 +12,6 @@ out vec4 fragColor;
 uniform bool useTexture;
 uniform bool useShadow;
 
-// diffuse texture map
-uniform sampler2D tex;
-
 // global data
 uniform float ka;
 uniform float kd;
@@ -48,6 +45,9 @@ uniform vec3 specular_color;
 uniform float shininess;
 uniform float blend;
 uniform vec2 repeatUV;
+
+// diffuse texture map
+uniform sampler2D diffuseTexture;
 
 float directionShadowCalculation(vec4 position) {
     // perform perspective divide
@@ -94,8 +94,7 @@ float pointShadowCalculation(vec4 position) {
     vec3 lightToPos = position.xyz - lightPositions[pointLightID];
 
     // sample from the cube map to retrieve depth info
-//    float closestDepth = texture(pointLightShadowMap, lightToPos).r;
-    float closestDepth = 0.1;
+    float closestDepth = texture(pointLightShadowMap, lightToPos).r;
     // transform the depth from normalized value to actual value
     closestDepth *= pointLightFarPlane;
 
@@ -123,7 +122,7 @@ void main(){
             // point light shadow
             if (useShadow && i == pointLightID) {
                 // only calculate shadow for a designated point light
-//                shadow = pointShadowCalculation(fragPos);
+                shadow = pointShadowCalculation(fragPos);
             }
         } else if (lightTypes[i] == 1) {
             // Dir Light
@@ -131,7 +130,7 @@ void main(){
             // directional light shadow
             if (useShadow && i == dirLightID) {
                 // only calculate shadow for a designated directional light
-//                shadow = directionShadowCalculation(fragPos);
+                shadow = directionShadowCalculation(fragPos);
             }
         } else {
             // ignore the light
@@ -144,7 +143,7 @@ void main(){
 
         if (useTexture) {
             // sample the texture color
-            vec3 texColor = texture(tex, texCoords).rgb;
+            vec3 texColor = texture(diffuseTexture, texCoords).rgb;
 
             // blend the texture color with diffuse color
             diffuse = mix(diffuse, texColor, blend);
