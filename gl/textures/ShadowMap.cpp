@@ -32,7 +32,7 @@ void ShadowMap::setupDepthMap() {
     TextureParametersBuilder builder;
 
     builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
-    builder.setWrap(TextureParameters::WRAP_METHOD::REPEAT);
+    builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_BORDER);
 
     TextureParameters param = builder.build();
     param.applyTo(m_depthMap);

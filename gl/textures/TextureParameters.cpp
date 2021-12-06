@@ -26,6 +26,12 @@ void TextureParameters::applyTo(const Texture2D &texture) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapEnum);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapEnum);
 
+    //avoid repeat in shadow mapping
+    if(m_wrapMethod==WRAP_METHOD::CLAMP_TO_BORDER){
+        float borderColor[] = {1.0, 1.0, 1.0, 1.0};
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    }
+
     texture.unbind();
 }
 

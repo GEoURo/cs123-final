@@ -14,6 +14,7 @@ public:
                                LINEAR = GL_LINEAR };
 
     enum class WRAP_METHOD { CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
+                             CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
                              REPEAT = GL_REPEAT };
 
     void applyTo(const Texture2D &texture);

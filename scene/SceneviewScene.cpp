@@ -423,6 +423,8 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
 
             // dir light uniforms
             // TODO:
+            //m_phongShader->setUniform("dirLightSpaceMat", lightSpaceMatrix);
+            //m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
         }
 
         // draw the primitive
