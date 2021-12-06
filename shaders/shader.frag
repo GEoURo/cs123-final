@@ -49,8 +49,44 @@ uniform float shininess;
 uniform float blend;
 uniform vec2 repeatUV;
 
-float directionShadowCalculation() {
-    return 0.f;
+float directionShadowCalculation(vec4 position) {
+    // perform perspective divide
+    vec3 projCoords = position.xyz / position.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+
+    //check z value
+    if(projCoords.z > 1.0){
+        projCoords.z = 1.0;
+    }
+
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    //float closestDepth = texture(dirLightShadowMap, projCoords.xy).r;
+
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    //add bias
+    vec3 lightDir = lightDirections[dirLightID];
+    lightDir = normalize(lightDir);
+    float dotLightNormal = dot(lightDir, vec3(fragNormal));
+    float bias = max(0.05*(1.0-dotLightNormal),0.005);
+
+    // check whether current frag pos is in shadow
+    //float shadow = (currentDepth + bias) > closestDepth  ? 1.0 : 0.0;
+
+    //percentage-closer filter
+    float shadow = 0.0;
+    vec2 texelSize = 1.0/textureSize(dirLightShadowMap,0);
+    for(int x=-1;x<=1;x++){
+        for(int y=-1;y<=1;y++){
+            float closestDepth = texture(dirLightShadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
+            shadow+= (currentDepth + bias) > closestDepth  ? 1.0 : 0.0;
+        }
+    }
+
+    //return shadow;
+    return shadow/9.0;
 }
 
 float pointShadowCalculation(vec4 position) {
@@ -95,7 +131,7 @@ void main(){
             // TODO: directional light shadow
             if (useShadow && i == dirLightID) {
                 // only calculate shadow for a designated directional light
-                shadow = directionShadowCalculation();
+                shadow = directionShadowCalculation(fragPos);
             }
         } else {
             // ignore the light

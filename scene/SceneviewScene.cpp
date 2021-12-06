@@ -230,6 +230,34 @@ void SceneviewScene::renderShadow(View *context) {
     return;
 }
 
+void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &light) {
+    glm::mat4 lightProjection, lightView, lightSpaceMatrix;
+    float near_plane = 1.f, far_plane = 7.5f;
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    lightView = glm::lookAt(glm::vec3(-light.dir),
+                                      glm::vec3( 0.0f, 0.0f,  0.0f),
+                                      glm::vec3( 0.0f, 1.0f,  0.0f));
+    lightSpaceMatrix = lightProjection * lightView;
+
+    m_dirShadowMap->bind();
+    m_shadow_direcitonShader->bind();
+
+    m_shadow_direcitonShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    for (size_t i = 0; i < m_primitives.size(); i++) {
+
+        // setup CTM
+        m_shadow_direcitonShader->setUniform("model", m_primitiveTrans[i]);
+
+        // draw the primitive
+        renderPrimitive(m_primitives[i].type);
+    }
+
+    m_shadow_direcitonShader->unbind();
+    m_dirShadowMap->unbind();
+}
+
 void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &light) {
     // basic config for the light space perspective
     float aspect = 1.f;
@@ -320,34 +348,6 @@ void SceneviewScene::clearLights() {
     }
 }
 
-void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &light) {
-    glm::mat4 lightProjection, lightView, lightSpaceMatrix;
-    float near_plane = 1.f, far_plane = 7.5f;
-    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-    lightView = glm::lookAt(glm::vec3(-light.dir),
-                                      glm::vec3( 0.0f, 0.0f,  0.0f),
-                                      glm::vec3( 0.0f, 1.0f,  0.0f));
-    lightSpaceMatrix = lightProjection * lightView;
-
-    m_dirShadowMap->bind();
-    m_shadow_direcitonShader->bind();
-
-    m_shadow_direcitonShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    for (size_t i = 0; i < m_primitives.size(); i++) {
-
-        // setup CTM
-        m_shadow_direcitonShader->setUniform("model", m_primitiveTrans[i]);
-
-        // draw the primitive
-        renderPrimitive(m_primitives[i].type);
-    }
-
-    m_shadow_direcitonShader->unbind();
-    m_dirShadowMap->unbind();
-}
-
 void SceneviewScene::renderPhongPass(View *context) {
     m_phongShader->bind();
 
@@ -391,7 +391,9 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
         }
 
         // dir light uniforms
-        // TODO:
+        // m_phongShader->setUniform("dirLightSpaceMat", lightSpaceMatrix);
+        // m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
+
     }
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
