@@ -198,7 +198,7 @@ void SceneviewScene::renderShadow(View *context) {
     int shadowMapH = h * 4;
 
     m_dirShadowMap = make_unique<ShadowMap>(shadowMapW, shadowMapH);
-    m_pointShadowMap = make_unique<ShadowCube>(shadowMapW, shadowMapH);
+    m_pointShadowMap = make_unique<ShadowCube>(std::max(shadowMapW, shadowMapH));
 
     m_dirShadowID = -1;
     m_pointShadowID = -1;

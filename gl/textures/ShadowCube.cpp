@@ -7,10 +7,9 @@
 
 using namespace CS123::GL;
 
-ShadowCube::ShadowCube(int width, int height) :
-    m_width(width),
-    m_height(height),
-    m_depthCube(TextureCube(nullptr, m_width, m_height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT))
+ShadowCube::ShadowCube(int size) :
+    m_size(size),
+    m_depthCube(TextureCube(nullptr, size, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT))
 {
     // Generate a new framebuffer using m_handle
     glGenFramebuffers(1, &m_handle);
@@ -48,7 +47,7 @@ void ShadowCube::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, m_handle);
 
     // Resize the viewport to our FBO's size
-    glViewport(0, 0, m_width, m_height);
+    glViewport(0, 0, m_size, m_size);
 }
 
 void ShadowCube::unbind() {

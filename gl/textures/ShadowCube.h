@@ -8,7 +8,7 @@ namespace CS123 { namespace GL {
 class ShadowCube
 {
 public:
-    ShadowCube(int width, int height);
+    ShadowCube(int size);
 
     void bind();
     void unbind();
@@ -16,8 +16,7 @@ public:
     const TextureCube& getDepthCube() const;
 
 private:
-    int m_width;
-    int m_height;
+    int m_size;
     unsigned int m_handle;
 
     TextureCube m_depthCube;

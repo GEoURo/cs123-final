@@ -9,7 +9,7 @@ namespace CS123 { namespace GL {
 class TextureCube : public Texture
 {
 public:
-    TextureCube(unsigned char *data, int width, int height, GLenum internalFormat, GLenum format, GLenum type);
+    TextureCube(unsigned char *data, int size, GLenum internalFormat, GLenum format, GLenum type);
 
     virtual void bind() const override;
     virtual void unbind() const override;
