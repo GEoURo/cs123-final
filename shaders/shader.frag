@@ -81,10 +81,9 @@ void main(){
             float d = length(vec4(lightPositions[i], 1) - fragPos);
             attenuation = min(1.f, 1.f / (lightAttenuations[i].x + d * lightAttenuations[i].y + d * d * lightAttenuations[i].z));
             vertexToLight = normalize(vec4(lightPositions[i], 1) - fragPos);
-            // TODO: point light shadow
+            // point light shadow
             if (useShadow && i == pointLightID) {
                 // only calculate shadow for a designated point light
-                color += vec3(1);
                 shadow = pointShadowCalculation(fragPos);
             }
         } else if (lightTypes[i] == 1) {
