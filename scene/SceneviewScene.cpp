@@ -298,7 +298,14 @@ void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &
     m_shadow_direcitonShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    renderScene_directionShadow();
+    for (size_t i = 0; i < m_primitives.size(); i++) {
+
+        // setup CTM
+        m_shadow_direcitonShader->setUniform("model", m_primitiveTrans[i]);
+
+        // draw the primitive
+        renderPrimitive(m_primitives[i].type);
+    }
 
     m_shadow_direcitonShader->unbind();
     m_dirShadowMap->unbind();
@@ -322,8 +329,10 @@ void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &ligh
     shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     // bind the shadow map and the shader
-    m_dirShadowMap->bind();
+    m_pointShadowMap->bind();
     m_shadow_pointShader->bind();
+
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     // set uniform variables
     for (int i = 0; i < 6; i++) {
@@ -343,7 +352,7 @@ void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &ligh
 
     // unbind the shadow map and the shader
     m_shadow_pointShader->unbind();
-    m_dirShadowMap->unbind();
+    m_pointShadowMap->unbind();
 }
 
 void SceneviewScene::renderPhongPass(View *context) {
@@ -354,7 +363,6 @@ void SceneviewScene::renderPhongPass(View *context) {
     clearLights();
     setLights();
     setSceneUniforms(context);
-    setMatrixUniforms(m_phongShader.get(), context);
 
     renderGeometryAsFilledPolygons();
 
@@ -368,20 +376,6 @@ void SceneviewScene::renderWireframePass(View *context) {
     renderGeometryAsWireframe();
 
     m_wireframeShader->unbind();
-}
-
-void SceneviewScene::renderScene_directionShadow() {
-    // setup polygon mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    for (size_t i = 0; i < m_primitives.size(); i++) {
-
-        // setup CTM
-        m_shadow_direcitonShader->setUniform("model", m_primitiveTrans[i]);
-
-        // draw the primitive
-        renderPrimitive(m_primitives[i].type);
-    }
 }
 
 void SceneviewScene::renderGeometryAsFilledPolygons() {

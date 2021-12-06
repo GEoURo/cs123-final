@@ -101,7 +101,6 @@ private:
     void renderPhongPass(View *context);
     void renderWireframePass(View *context);
 
-    void renderScene_directionShadow();
     void renderGeometryAsFilledPolygons();
     void renderGeometryAsWireframe();
 
