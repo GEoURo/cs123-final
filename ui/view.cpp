@@ -115,6 +115,11 @@ void View::paintGL() {
     if (m_scene == nullptr) {
         return;
     }
+
+    if (settings.shadowMapping) {
+        m_scene->renderShadow(this);
+    }
+
     // render the scene into the color buffer
     m_colorBuffer->bind();
     m_scene->render(this);

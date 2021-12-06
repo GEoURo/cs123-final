@@ -8,6 +8,7 @@
 
 #include "gl/GLDebug.h"
 #include "gl/textures/Texture2D.h"
+#include "gl/textures/TextureCube.h"
 
 namespace CS123 { namespace GL {
 
@@ -196,7 +197,13 @@ void Shader::setTexture(const std::string &name, const Texture2D &t) {
 
 void Shader::setTexture(const std::string &name, const Texture3D &t) {}
 
-void Shader::setTexture(const std::string &name, const TextureCube &t) {}
+void Shader::setTexture(const std::string &name, const TextureCube &t) {
+    GLint location = m_textureLocations[name];
+    GLint slot = m_textureSlots[location];
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glUniform1i(location, slot);
+    t.bind();
+}
 
 void Shader::attachShaders(const std::vector<GLuint> &shaders) {
     std::for_each(shaders.begin(), shaders.end(), [this](int s){ glAttachShader(m_programID, s); });

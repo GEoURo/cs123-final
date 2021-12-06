@@ -28,8 +28,13 @@ using namespace CS123::GL;
 using namespace std;
 using namespace glm;
 
+static float pointLightNear = 1.0f;
+static float pointLightFar = 25.0f;
+
 SceneviewScene::SceneviewScene() :
-    m_globalData({1, 1, 1, 1})
+    m_globalData({1, 1, 1, 1}),
+    m_dirShadowID(-1),
+    m_pointShadowID(-1)
 {
     // Set up Sceneview scene
     loadShadow_directionShader();
@@ -138,14 +143,14 @@ void SceneviewScene::dfsParseSceneNode(CS123SceneNode *node, glm::mat4 matrix) {
 void SceneviewScene::loadShadow_directionShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
-    m_shadow_direcitonShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+    m_shadow_direcitonShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 }
 
 void SceneviewScene::loadShadow_pointShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.vert");
     std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.gsh");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.frag");
-    m_shadow_pointShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+    m_shadow_pointShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
 }
 
 void SceneviewScene::loadPhongShader() {
@@ -304,10 +309,8 @@ void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &ligh
     int shadowH = context->height() * 4;
     // basic config for the light space perspective
     float aspect = (float)shadowW/(float)shadowH;
-    float near = 1.0f;
-    float far = 25.0f;
 
-    glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), aspect, near, far);
+    glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), aspect, pointLightNear, pointLightFar);
     vec3 lightPos = light.pos.xyz();
     // setup shadow transformation for each face
     std::vector<glm::mat4> shadowTransforms;
@@ -326,7 +329,7 @@ void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &ligh
     for (int i = 0; i < 6; i++) {
         m_shadow_pointShader->setUniform("shadowmatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
     }
-    m_shadow_pointShader->setUniform("farPlane", far);
+    m_shadow_pointShader->setUniform("farPlane", pointLightFar);
     m_shadow_pointShader->setUniform("lightPos", lightPos);
 
     // render the scene
@@ -402,6 +405,24 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
             m_phongShader->setTexture("tex", *(m_textures[i].get()));
         } else {
             m_phongShader->setUniform("useTexture", false);
+        }
+
+        // setup shadow mapping uniforms
+        if (!settings.shadowMapping) {
+            m_phongShader->setUniform("useShadow", false);
+        } else {
+            // global switch
+            m_phongShader->setUniform("useShadow", true);
+            m_phongShader->setUniform("pointLightID", m_pointShadowID);
+            if (m_pointShadowID != -1) {
+                // if id is -1, then it means no shadow map for point light
+                m_phongShader->setUniform("pointLightFarPlane", pointLightFar);
+                m_phongShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
+            }
+            // point light uniforms
+
+            // dir light uniforms
+            // TODO:
         }
 
         // draw the primitive
