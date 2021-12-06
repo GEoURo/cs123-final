@@ -116,6 +116,7 @@ void View::paintGL() {
         return;
     }
 
+    // let the scene prepare the shadow data if needed
     if (settings.shadowMapping) {
         m_scene->renderShadow(this);
     }
@@ -125,6 +126,7 @@ void View::paintGL() {
     m_scene->render(this);
     m_colorBuffer->unbind();
 
+    // render the hdr tone mapping pass
     m_toneMappingBuffer->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
