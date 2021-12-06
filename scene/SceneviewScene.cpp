@@ -30,6 +30,7 @@ using namespace glm;
 
 static float pointLightNear = 0.1f;
 static float pointLightFar = 55.0f;
+static glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
 
 SceneviewScene::SceneviewScene() :
     m_globalData({1, 1, 1, 1}),
@@ -40,7 +41,6 @@ SceneviewScene::SceneviewScene() :
     loadShadow_directionShader();
     loadShadow_pointShader();
     loadPhongShader();
-//    loadWireframeShader();
 
     // setup texture manager
     m_textureManager = std::unique_ptr<TextureManager>(new TextureManager());
@@ -159,12 +159,6 @@ void SceneviewScene::loadPhongShader() {
     m_phongShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 }
 
-void SceneviewScene::loadWireframeShader() {
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/wireframe.vert");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/wireframe.frag");
-    m_wireframeShader = std::make_unique<Shader>(vertexSource, fragmentSource);
-}
-
 void SceneviewScene::setupPrimitives() {
     // setup all the shape primitives
     m_cone = make_unique<ConeShape>(settings.shapeParameter1, settings.shapeParameter2);
@@ -231,18 +225,18 @@ void SceneviewScene::renderShadow(View *context) {
 }
 
 void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &light) {
-    glm::mat4 lightProjection, lightView, lightSpaceMatrix;
+    glm::mat4 lightProjection, lightView;
     float near_plane = 1.f, far_plane = 7.5f;
     lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
     lightView = glm::lookAt(glm::vec3(-light.dir),
                                       glm::vec3( 0.0f, 0.0f,  0.0f),
                                       glm::vec3( 0.0f, 1.0f,  0.0f));
-    lightSpaceMatrix = lightProjection * lightView;
+    dirLightSpaceMatrix = lightProjection * lightView;
 
     m_dirShadowMap->bind();
     m_shadow_direcitonShader->bind();
 
-    m_shadow_direcitonShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
+    m_shadow_direcitonShader->setUniform("lightSpaceMatrix", dirLightSpaceMatrix);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
@@ -301,51 +295,11 @@ void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &ligh
     m_pointShadowMap->unbind();
 }
 
-
 void SceneviewScene::render(View *context) {
     setClearColor();
 
     // render the primitives
     renderPhongPass(context);
-
-    // render the wireframes
-//    if (settings.drawWireframe) {
-//        renderWireframePass(context);
-//    }
-}
-
-void SceneviewScene::setGlobalData(){
-    // pass global data to shader.vert using m_phongShader
-    m_phongShader->setUniform("ka", m_globalData.ka);
-    m_phongShader->setUniform("kd", m_globalData.kd);
-    m_phongShader->setUniform("ks", m_globalData.ks);
-}
-
-void SceneviewScene::setSceneUniforms(View *context) {
-    Camera *camera = context->getCamera();
-    m_phongShader->setUniform("cameraPos", camera->getPosition());
-    m_phongShader->setUniform("p" , camera->getProjectionMatrix());
-    m_phongShader->setUniform("v", camera->getViewMatrix());
-}
-
-void SceneviewScene::setMatrixUniforms(Shader *shader, View *context) {
-    shader->setUniform("p", context->getCamera()->getProjectionMatrix());
-    shader->setUniform("v", context->getCamera()->getViewMatrix());
-}
-
-void SceneviewScene::setLights() {
-    for (CS123SceneLightData &light : m_lights) {
-        m_phongShader->setLight(light);
-    }
-}
-
-void SceneviewScene::clearLights() {
-    for (int i = 0; i < MAX_NUM_LIGHTS; i++) {
-        std::ostringstream os;
-        os << i;
-        std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
-        m_phongShader->setUniform("lightColors" + indexString, glm::vec3(0.0f, 0.0f, 0.0f));
-    }
 }
 
 void SceneviewScene::renderPhongPass(View *context) {
@@ -353,6 +307,7 @@ void SceneviewScene::renderPhongPass(View *context) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setGlobalData();
+    setShadowMaps();
     clearLights();
     setLights();
     setSceneUniforms(context);
@@ -362,39 +317,9 @@ void SceneviewScene::renderPhongPass(View *context) {
     m_phongShader->unbind();
 }
 
-void SceneviewScene::renderWireframePass(View *context) {
-    m_wireframeShader->bind();
-
-    setMatrixUniforms(m_wireframeShader.get(), context);
-    renderGeometryAsWireframe();
-
-    m_wireframeShader->unbind();
-}
-
 void SceneviewScene::renderGeometryAsFilledPolygons() {
     // setup polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    // setup shadow mapping uniforms
-    if (!settings.shadowMapping) {
-        m_phongShader->setUniform("useShadow", false);
-    } else {
-        // global switch
-        m_phongShader->setUniform("useShadow", true);
-
-        // point light uniforms
-        m_phongShader->setUniform("pointLightID", m_pointShadowID);
-        if (m_pointShadowID != -1) {
-            // if id is -1, then it means no shadow map for point light
-            m_phongShader->setUniform("pointLightFarPlane", pointLightFar);
-            m_phongShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
-        }
-
-        // dir light uniforms
-        // m_phongShader->setUniform("dirLightSpaceMat", lightSpaceMatrix);
-        // m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
-
-    }
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
         // setup the material
@@ -422,19 +347,6 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
         if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
             m_textures[i]->unbind();
         }
-    }
-}
-
-void SceneviewScene::renderGeometryAsWireframe() {
-    // setup polygon mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    for (size_t i = 0; i < m_primitives.size(); i++) {
-        // setup CTM
-        m_wireframeShader->setUniform("m", m_primitiveTrans[i]);
-
-        // draw primitive
-        renderPrimitive(m_primitives[i].type);
     }
 }
 
@@ -468,5 +380,60 @@ void SceneviewScene::renderPrimitive(PrimitiveType type) {
             m_cube->draw();
             break;
         }
+    }
+}
+
+void SceneviewScene::setGlobalData(){
+    // pass global data to shader.vert using m_phongShader
+    m_phongShader->setUniform("ka", m_globalData.ka);
+    m_phongShader->setUniform("kd", m_globalData.kd);
+    m_phongShader->setUniform("ks", m_globalData.ks);
+}
+
+void SceneviewScene::setSceneUniforms(View *context) {
+    Camera *camera = context->getCamera();
+    m_phongShader->setUniform("cameraPos", camera->getPosition());
+    m_phongShader->setUniform("p" , camera->getProjectionMatrix());
+    m_phongShader->setUniform("v", camera->getViewMatrix());
+}
+
+void SceneviewScene::setShadowMaps() {
+    // setup shadow mapping uniforms
+    if (!settings.shadowMapping) {
+        m_phongShader->setUniform("useShadow", false);
+    } else {
+        // global switch
+        m_phongShader->setUniform("useShadow", true);
+
+        // point light uniforms
+        m_phongShader->setUniform("pointLightID", m_pointShadowID);
+        if (m_pointShadowID != -1) {
+            // if id is not -1, then it means there is a shadow map for point light
+            m_phongShader->setUniform("pointLightFarPlane", pointLightFar);
+            m_phongShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
+        }
+
+        // dir light uniforms
+        m_phongShader->setUniform("dirLightID", m_dirShadowID);
+        if (m_dirShadowID != -1) {
+            // if id is not -1, then it means there is a shadow map for directional light
+            m_phongShader->setUniform("dirLightSpaceMat", dirLightSpaceMatrix);
+            m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
+        }
+    }
+}
+
+void SceneviewScene::setLights() {
+    for (CS123SceneLightData &light : m_lights) {
+        m_phongShader->setLight(light);
+    }
+}
+
+void SceneviewScene::clearLights() {
+    for (int i = 0; i < MAX_NUM_LIGHTS; i++) {
+        std::ostringstream os;
+        os << i;
+        std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
+        m_phongShader->setUniform("lightColors" + indexString, glm::vec3(0.0f, 0.0f, 0.0f));
     }
 }

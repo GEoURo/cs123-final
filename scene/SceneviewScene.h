@@ -73,10 +73,8 @@ private:
     void loadShadow_directionShader();
     void loadShadow_pointShader();
     void loadPhongShader();
-    void loadWireframeShader();
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
-    std::unique_ptr<CS123::GL::Shader> m_wireframeShader;
     std::unique_ptr<CS123::GL::Shader> m_shadow_direcitonShader;
     std::unique_ptr<CS123::GL::Shader> m_shadow_pointShader;
 
@@ -91,20 +89,16 @@ private:
     std::unique_ptr<SphereShape> m_sphere;
 
     void setSceneUniforms(View *context);
-    void setMatrixUniforms(CS123::GL::Shader *shader, View *context);
-
     void setGlobalData();
+    void setShadowMaps();
     void setLights();
     void clearLights();
 
     void renderDirectionShadow(View *context , CS123SceneLightData &light);
     void renderPointShadow(View *context , CS123SceneLightData &light);
     void renderPhongPass(View *context);
-    void renderWireframePass(View *context);
 
     void renderGeometryAsFilledPolygons();
-    void renderGeometryAsWireframe();
-
     void renderPrimitive(PrimitiveType type);
 
     // shadow maps

@@ -94,8 +94,8 @@ float pointShadowCalculation(vec4 position) {
     vec3 lightToPos = position.xyz - lightPositions[pointLightID];
 
     // sample from the cube map to retrieve depth info
-    float closestDepth = texture(pointLightShadowMap, lightToPos).r;
-
+//    float closestDepth = texture(pointLightShadowMap, lightToPos).r;
+    float closestDepth = 0.1;
     // transform the depth from normalized value to actual value
     closestDepth *= pointLightFarPlane;
 
@@ -123,15 +123,15 @@ void main(){
             // point light shadow
             if (useShadow && i == pointLightID) {
                 // only calculate shadow for a designated point light
-                shadow = pointShadowCalculation(fragPos);
+//                shadow = pointShadowCalculation(fragPos);
             }
         } else if (lightTypes[i] == 1) {
             // Dir Light
             vertexToLight = normalize(vec4(-lightDirections[i], 0));
-            // TODO: directional light shadow
+            // directional light shadow
             if (useShadow && i == dirLightID) {
                 // only calculate shadow for a designated directional light
-                shadow = directionShadowCalculation(fragPos);
+//                shadow = directionShadowCalculation(fragPos);
             }
         } else {
             // ignore the light
