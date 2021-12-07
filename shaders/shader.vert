@@ -3,7 +3,6 @@
 layout(location = 0) in vec3 position; // Position of the vertex
 layout(location = 1) in vec3 normal;   // Normal of the vertex
 layout(location = 5) in vec2 texCoord; // UV texture coordinates
-layout(location = 10) in float arrowOffset; // Sideways offset for billboarded normal arrows
 
 out vec4 fragPos;
 out vec4 fragNormal;
@@ -15,8 +14,6 @@ uniform mat4 v;
 uniform mat4 m;
 
 uniform vec2 repeatUV;
-
-uniform bool useArrowOffsets; // True if rendering the arrowhead of a normal for Shapes
 
 void main() {
     // calculate the actual texture UV after repeating UV times

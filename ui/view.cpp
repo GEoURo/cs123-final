@@ -126,6 +126,10 @@ void View::paintGL() {
         m_scene->renderDirectionShadowMapDEBUG(this);
         return;
 #endif
+#ifdef DEBUG_POINT_SHADOW
+        m_scene->renderPointShadowMapDEBUG(this);
+        return;
+#endif
     }
 
     // render the scene into the color buffer

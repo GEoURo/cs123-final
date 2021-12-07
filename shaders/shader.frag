@@ -95,6 +95,7 @@ float pointShadowCalculation(vec4 position) {
     closestDepth *= pointLightFarPlane;
 
     float currentDepth = length(lightToPos);
+
     float bias = 0.05;
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
     return shadow;

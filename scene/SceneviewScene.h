@@ -48,6 +48,7 @@ public:
     // render the shadow map of the scene of each light source
     void renderShadow(View *context);
     void renderDirectionShadowMapDEBUG(View *context);
+    void renderPointShadowMapDEBUG(View *context);
 
     // settings update function
     virtual void settingsChanged() override;
@@ -75,11 +76,13 @@ private:
     void loadPointShadowShader();
     void loadPhongShader();
     void loadDirectionShadowDEBUGShader();
+    void loadPointShadowDEBUGShader();
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
     std::unique_ptr<CS123::GL::Shader> m_dirShadowShader;
     std::unique_ptr<CS123::GL::Shader> m_pointShadowShader;
     std::unique_ptr<CS123::GL::Shader> m_dirShadowDebugShader;
+    std::unique_ptr<CS123::GL::CS123Shader> m_pointShadowDebugShader;
 
     // shape primitives operation
     void setupPrimitives();

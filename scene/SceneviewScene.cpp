@@ -49,6 +49,7 @@ SceneviewScene::SceneviewScene() :
     loadPointShadowShader();
     loadPhongShader();
     loadDirectionShadowDEBUGShader();
+    loadPointShadowDEBUGShader();
 
     // setup texture manager
     m_textureManager = std::unique_ptr<TextureManager>(new TextureManager());
@@ -164,6 +165,12 @@ void SceneviewScene::loadPointShadowShader() {
     std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.gsh");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.frag");
     m_pointShadowShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
+}
+
+void SceneviewScene::loadPointShadowDEBUGShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/default.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadowDebug.frag");
+    m_pointShadowDebugShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 }
 
 void SceneviewScene::loadPhongShader() {
@@ -322,6 +329,46 @@ void SceneviewScene::renderDirectionShadowMapDEBUG(View *context) {
     quad.draw();
 
     m_dirShadowDebugShader->unbind();
+}
+
+void SceneviewScene::renderPointShadowMapDEBUG(View *context) {
+    setClearColor();
+    glViewport(0, 0, context->width(), context->height());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_pointShadowDebugShader->bind();
+
+    // set light uniforms
+    for (int i = 0; i < MAX_NUM_LIGHTS; i++) {
+        std::ostringstream os;
+        os << i;
+        std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
+        m_pointShadowDebugShader->setUniform("lightColors" + indexString, glm::vec3(0.0f, 0.0f, 0.0f));
+    }
+
+    for (CS123SceneLightData &light : m_lights) {
+        m_pointShadowDebugShader->setLight(light);
+    }
+
+    // set scene uniforms
+    Camera *camera = context->getCamera();
+    m_pointShadowDebugShader->setUniform("p" , camera->getProjectionMatrix());
+    m_pointShadowDebugShader->setUniform("v", camera->getViewMatrix());
+
+    // set shadow map uniforms
+    m_pointShadowDebugShader->setUniform("pointLightID", m_pointShadowID);
+    m_pointShadowDebugShader->setUniform("pointLightFarPlane", pointLightFar);
+    m_pointShadowDebugShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
+
+    for (size_t i = 0; i < m_primitives.size(); i++) {
+        // setup CTM
+        m_pointShadowDebugShader->setUniform("m", m_primitiveTrans[i]);
+
+        // draw the primitive
+        renderPrimitive(m_primitives[i].type);
+    }
+
+    m_pointShadowDebugShader->unbind();
 }
 
 void SceneviewScene::render(View *context) {
