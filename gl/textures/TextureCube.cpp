@@ -2,7 +2,7 @@
 
 using namespace CS123::GL;
 
-TextureCube::TextureCube(unsigned char *data, int size, GLenum internalFormat, GLenum format, GLenum type) :
+TextureCube::TextureCube(void *data, int size, GLenum internalFormat, GLenum format, GLenum type) :
     Texture()
 {
     TextureCube::bind();
