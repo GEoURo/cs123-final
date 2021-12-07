@@ -204,11 +204,8 @@ void SceneviewScene::settingsChanged() {
 }
 
 void SceneviewScene::updateFBO(int w, int h) {
-    int shadowMapW = w;
-    int shadowMapH = h;
-
-    m_dirShadowMap = make_unique<ShadowMap>(shadowMapW, shadowMapH);
-    m_pointShadowMap = make_unique<ShadowCube>(std::max(shadowMapW, shadowMapH));
+    m_dirShadowMap = make_unique<ShadowMap>(w, h);
+    m_pointShadowMap = make_unique<ShadowCube>(std::max(w, h));
 }
 
 void SceneviewScene::renderShadow(View *context) {
