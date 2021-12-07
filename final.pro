@@ -164,6 +164,7 @@ DISTFILES += \
     shaders/pointShadow.vert \
     shaders/shadowmap.frag \
     shaders/shadowmap.vert \
+    shaders/shadowmapDebug.frag \
     shaders/tonemapping.frag \
     shaders/wireframe/wireframe.frag \
     shaders/wireframe/wireframe.vert

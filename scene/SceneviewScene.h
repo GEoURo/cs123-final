@@ -47,6 +47,7 @@ public:
 
     // render the shadow map of the scene of each light source
     void renderShadow(View *context);
+    void renderDirectionShadowMapDEBUG(View *context);
 
     // settings update function
     virtual void settingsChanged() override;
@@ -70,13 +71,15 @@ private:
     std::unique_ptr<TextureManager> m_textureManager;
 
     // shader loader functions
-    void loadShadow_directionShader();
-    void loadShadow_pointShader();
+    void loadDirectionShadowShader();
+    void loadPointShadowShader();
     void loadPhongShader();
+    void loadDirectionShadowDEBUGShader();
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
     std::unique_ptr<CS123::GL::Shader> m_dirShadowShader;
     std::unique_ptr<CS123::GL::Shader> m_pointShadowShader;
+    std::unique_ptr<CS123::GL::Shader> m_dirShadowDebugShader;
 
     // shape primitives operation
     void setupPrimitives();
@@ -94,7 +97,7 @@ private:
     void setLights();
     void clearLights();
 
-    void renderDirectionShadow(View *context , CS123SceneLightData &light);
+    void renderDirectionShadow(CS123SceneLightData &light);
     void renderPointShadow(CS123SceneLightData &light);
     void renderPhongPass(View *context);
 

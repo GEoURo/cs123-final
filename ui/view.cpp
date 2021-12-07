@@ -122,6 +122,10 @@ void View::paintGL() {
     // let the scene prepare the shadow data if needed
     if (settings.shadowMapping) {
         m_scene->renderShadow(this);
+#ifdef DEBUG_DIRECTION_SHADOW
+        m_scene->renderDirectionShadowMapDEBUG(this);
+        return;
+#endif
     }
 
     // render the scene into the color buffer

@@ -16,6 +16,8 @@
 #include "gl/textures/ShadowMap.h"
 #include "gl/textures/ShadowCube.h"
 #include "gl/util/TextureManager.h"
+#include "gl/util/FullScreenQuad.h"
+#include "gl/datatype/VAO.h"
 
 #include "glm/gtx/transform.hpp"
 
@@ -30,7 +32,12 @@ using namespace glm;
 
 static float pointLightNear = 0.1f;
 static float pointLightFar = 60.0f;
-static glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
+static float dirLightNear = 0.1f;
+static float dirLightFar = 15.f;
+static float dirLightDisFromOrigin = 7.5f;
+static float dirLightOrthoSize = 10.f;
+
+glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
 
 SceneviewScene::SceneviewScene() :
     m_globalData({1, 1, 1, 1}),
@@ -38,9 +45,10 @@ SceneviewScene::SceneviewScene() :
     m_pointShadowID(-1)
 {
     // Set up Sceneview scene
-    loadShadow_directionShader();
-    loadShadow_pointShader();
+    loadDirectionShadowShader();
+    loadPointShadowShader();
     loadPhongShader();
+    loadDirectionShadowDEBUGShader();
 
     // setup texture manager
     m_textureManager = std::unique_ptr<TextureManager>(new TextureManager());
@@ -93,7 +101,6 @@ void SceneviewScene::loadTextures() {
     }
 }
 
-
 void SceneviewScene::dfsParseSceneNode(CS123SceneNode *node, glm::mat4 matrix) {
     if (node == nullptr) {
         return;
@@ -140,13 +147,19 @@ void SceneviewScene::dfsParseSceneNode(CS123SceneNode *node, glm::mat4 matrix) {
     return;
 }
 
-void SceneviewScene::loadShadow_directionShader() {
+void SceneviewScene::loadDirectionShadowShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
     m_dirShadowShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 }
 
-void SceneviewScene::loadShadow_pointShader() {
+void SceneviewScene::loadDirectionShadowDEBUGShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/fullscreenquad.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmapDebug.frag");
+    m_dirShadowDebugShader = std::make_unique<Shader>(vertexSource, fragmentSource);
+}
+
+void SceneviewScene::loadPointShadowShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.vert");
     std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.gsh");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.frag");
@@ -204,7 +217,7 @@ void SceneviewScene::renderShadow(View *context) {
                 if (m_dirShadowID == -1 && m_lights[i].id < 10) {
                     // only consider the first encountered light
                     m_dirShadowID = m_lights[i].id;
-                    renderDirectionShadow(context, m_lights[i]);
+                    renderDirectionShadow(m_lights[i]);
                 }
                 break;
             }
@@ -224,12 +237,11 @@ void SceneviewScene::renderShadow(View *context) {
     return;
 }
 
-void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &light) {
-    // put the directional light at some where 50 units away from the origin
-    glm::vec3 lightPos = -glm::normalize(glm::vec3(light.dir)) * 50.f;
+void SceneviewScene::renderDirectionShadow(CS123SceneLightData &light) {
+    // put the directional light at a fixed units away from the origin
+    glm::vec3 lightPos = -glm::normalize(glm::vec3(light.dir)) * dirLightDisFromOrigin;
     // let the orthographic view volume cover twice the size
-    float near_plane = 0.1f, far_plane = 75.f;
-    glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+    glm::mat4 lightProjection = glm::ortho(-dirLightOrthoSize, dirLightOrthoSize, -dirLightOrthoSize, dirLightOrthoSize, dirLightNear, dirLightFar);
     glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
     // calculate the light space matrix
     dirLightSpaceMatrix = lightProjection * lightView;
@@ -293,6 +305,23 @@ void SceneviewScene::renderPointShadow(CS123SceneLightData &light) {
     // unbind the shadow map and the shader
     m_pointShadowShader->unbind();
     m_pointShadowMap->unbind();
+}
+
+void SceneviewScene::renderDirectionShadowMapDEBUG(View *context) {
+    FullScreenQuad quad;
+
+    setClearColor();
+    glViewport(0, 0, context->width(), context->height());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_dirShadowDebugShader->bind();
+    m_dirShadowDebugShader->setUniform("nearPlane", dirLightNear);
+    m_dirShadowDebugShader->setUniform("farPlane", dirLightFar);
+    m_dirShadowDebugShader->setTexture("depthMap" , m_dirShadowMap->getDepthMap());
+
+    quad.draw();
+
+    m_dirShadowDebugShader->unbind();
 }
 
 void SceneviewScene::render(View *context) {
