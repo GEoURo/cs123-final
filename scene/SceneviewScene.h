@@ -75,7 +75,7 @@ private:
     void loadPhongShader();
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
-    std::unique_ptr<CS123::GL::Shader> m_shadow_direcitonShader;
+    std::unique_ptr<CS123::GL::Shader> m_dirShadowShader;
     std::unique_ptr<CS123::GL::Shader> m_pointShadowShader;
 
     // shape primitives operation

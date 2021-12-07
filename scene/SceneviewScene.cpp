@@ -143,7 +143,7 @@ void SceneviewScene::dfsParseSceneNode(CS123SceneNode *node, glm::mat4 matrix) {
 void SceneviewScene::loadShadow_directionShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shadowmap.frag");
-    m_shadow_direcitonShader = std::make_unique<Shader>(vertexSource, fragmentSource);
+    m_dirShadowShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 }
 
 void SceneviewScene::loadShadow_pointShader() {
@@ -225,30 +225,30 @@ void SceneviewScene::renderShadow(View *context) {
 }
 
 void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &light) {
-    glm::mat4 lightProjection, lightView;
-    float near_plane = 1.f, far_plane = 7.5f;
-    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-    lightView = glm::lookAt(glm::vec3(-light.dir),
-                                      glm::vec3( 0.0f, 0.0f,  0.0f),
-                                      glm::vec3( 0.0f, 1.0f,  0.0f));
+    // put the directional light at some where 50 units away from the origin
+    glm::vec3 lightPos = -glm::normalize(glm::vec3(light.dir)) * 50.f;
+    // let the orthographic view volume cover twice the size
+    float near_plane = 0.1f, far_plane = 75.f;
+    glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
+    // calculate the light space matrix
     dirLightSpaceMatrix = lightProjection * lightView;
 
     m_dirShadowMap->bind();
-    m_shadow_direcitonShader->bind();
+    m_dirShadowShader->bind();
 
-    m_shadow_direcitonShader->setUniform("lightSpaceMatrix", dirLightSpaceMatrix);
+    m_dirShadowShader->setUniform("lightSpaceMatrix", dirLightSpaceMatrix);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
-
         // setup CTM
-        m_shadow_direcitonShader->setUniform("model", m_primitiveTrans[i]);
+        m_dirShadowShader->setUniform("model", m_primitiveTrans[i]);
 
         // draw the primitive
         renderPrimitive(m_primitives[i].type);
     }
 
-    m_shadow_direcitonShader->unbind();
+    m_dirShadowShader->unbind();
     m_dirShadowMap->unbind();
 }
 
