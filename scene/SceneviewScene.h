@@ -76,7 +76,7 @@ private:
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
     std::unique_ptr<CS123::GL::Shader> m_shadow_direcitonShader;
-    std::unique_ptr<CS123::GL::Shader> m_shadow_pointShader;
+    std::unique_ptr<CS123::GL::Shader> m_pointShadowShader;
 
     // shape primitives operation
     void setupPrimitives();
@@ -95,7 +95,7 @@ private:
     void clearLights();
 
     void renderDirectionShadow(View *context , CS123SceneLightData &light);
-    void renderPointShadow(View *context , CS123SceneLightData &light);
+    void renderPointShadow(CS123SceneLightData &light);
     void renderPhongPass(View *context);
 
     void renderGeometryAsFilledPolygons();

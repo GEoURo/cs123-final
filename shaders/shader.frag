@@ -61,8 +61,7 @@ float directionShadowCalculation(vec4 position) {
     float currentDepth = projCoords.z;
 
     // add bias
-    vec3 lightDir = lightDirections[dirLightID];
-    lightDir = normalize(lightDir);
+    vec3 lightDir = normalize(lightDirections[dirLightID]);
     float dotLightNormal = dot(lightDir, vec3(fragNormal));
     float bias = max(0.05*(1.0-dotLightNormal), 0.005);
 
@@ -72,7 +71,7 @@ float directionShadowCalculation(vec4 position) {
     for(int x=-1;x<=1;x++){
         for(int y=-1;y<=1;y++){
             float closestDepth = texture(dirLightShadowMap, projCoords.xy+vec2(x,y)*texelSize).r;
-            shadow += (currentDepth - bias) > closestDepth ? 0.5 : 0.0;
+            shadow += (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
         }
     }
 
@@ -119,7 +118,7 @@ void main() {
             // point light shadow
             if (useShadow && i == pointLightID) {
                 // only calculate shadow for a designated point light
-//                shadow = pointShadowCalculation(fragPos);
+                shadow = pointShadowCalculation(fragPos);
             }
         } else if (lightTypes[i] == 1) {
             // Dir Light

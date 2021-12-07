@@ -29,7 +29,7 @@ using namespace std;
 using namespace glm;
 
 static float pointLightNear = 0.1f;
-static float pointLightFar = 55.0f;
+static float pointLightFar = 60.0f;
 static glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
 
 SceneviewScene::SceneviewScene() :
@@ -150,7 +150,7 @@ void SceneviewScene::loadShadow_pointShader() {
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.vert");
     std::string geometrySource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.gsh");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/pointShadow.frag");
-    m_shadow_pointShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
+    m_pointShadowShader = std::make_unique<Shader>(vertexSource, geometrySource, fragmentSource);
 }
 
 void SceneviewScene::loadPhongShader() {
@@ -213,7 +213,7 @@ void SceneviewScene::renderShadow(View *context) {
                 if (m_pointShadowID == -1 && m_lights[i].id < 10) {
                     // only consider the first encountered light
                     m_pointShadowID = m_lights[i].id;
-                    renderPointShadow(context, m_lights[i]);
+                    renderPointShadow(m_lights[i]);
                 }
                 break;
             }
@@ -252,7 +252,7 @@ void SceneviewScene::renderDirectionShadow(View *context , CS123SceneLightData &
     m_dirShadowMap->unbind();
 }
 
-void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &light) {
+void SceneviewScene::renderPointShadow(CS123SceneLightData &light) {
     // basic config for the light space perspective
     float aspect = 1.f;
 
@@ -260,38 +260,38 @@ void SceneviewScene::renderPointShadow(View *context , CS123SceneLightData &ligh
     vec3 lightPos = light.pos.xyz();
     // setup shadow transformation for each face
     std::vector<glm::mat4> shadowTransforms;
-    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
     shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     // bind the shadow map and the shader
     m_pointShadowMap->bind();
-    m_shadow_pointShader->bind();
+    m_pointShadowShader->bind();
 
     // clear depth buffer to prepare for render
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // set uniform variables
     for (int i = 0; i < 6; i++) {
-        m_shadow_pointShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+        m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
     }
-    m_shadow_pointShader->setUniform("farPlane", pointLightFar);
-    m_shadow_pointShader->setUniform("lightPos", lightPos);
+    m_pointShadowShader->setUniform("farPlane", pointLightFar);
+    m_pointShadowShader->setUniform("lightPos", lightPos);
 
     // render the scene
     for (size_t i = 0; i < m_primitives.size(); i++) {
         // setup CTM
-        m_shadow_pointShader->setUniform("model", m_primitiveTrans[i]);
+        m_pointShadowShader->setUniform("model", m_primitiveTrans[i]);
 
         // draw the primitive
         renderPrimitive(m_primitives[i].type);
     }
 
     // unbind the shadow map and the shader
-    m_shadow_pointShader->unbind();
+    m_pointShadowShader->unbind();
     m_pointShadowMap->unbind();
 }
 
