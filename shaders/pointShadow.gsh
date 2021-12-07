@@ -10,10 +10,10 @@ void emitFace(mat4 m) {
     for (int i = 0; i < 3; i++) {
         fragPos = gl_in[i].gl_Position;
         // transform the vertex from the world space to each light space
-        gl_Position = shadowMatrices[face] * fragPos;
+        gl_Position = m * fragPos;
         EmitVertex();
     }
-    EmitPrimitive();
+    EndPrimitive();
 }
 
 void main() {
