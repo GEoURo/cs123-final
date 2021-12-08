@@ -248,6 +248,10 @@ void SceneviewScene::renderShadow(View *context) {
         }
         case LightType::LIGHT_DIRECTIONAL:
         {
+            if (m_dirShadowID == -1 && m_lights[i].id < MAX_NUM_LIGHTS) {
+                m_dirShadowID = m_lights[i].id;
+                renderDirectionShadow(m_lights[i]);
+            }
             break;
         }
         default:
@@ -274,10 +278,7 @@ void SceneviewScene::renderDirectionShadow(CS123SceneLightData &light) {
     glClear(GL_DEPTH_BUFFER_BIT);
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
-        // setup CTM
         m_dirShadowShader->setUniform("model", m_primitiveTrans[i]);
-
-        // draw the primitive
         renderPrimitive(m_primitives[i].type);
     }
 
@@ -469,7 +470,12 @@ void SceneviewScene::setShadowMaps() {
     // global switch
     m_phongShader->setUniform("settings.useShadow", settings.shadowMapping);
 
-    // point light uniforms
+    // directinal shadow uniforms
+    m_phongShader->setUniform("directionalShadow.lightId", m_dirShadowID);
+    m_phongShader->setUniform("directionalShadow.lightSpaceMat", dirLightSpaceMatrix);
+    m_phongShader->setTexture("directionalShadow.depthMap", m_dirShadowMap->getDepthMap());
+
+    // point shadow uniforms
     m_phongShader->setUniform("pointShadow.lightId", m_pointShadowID);
     m_phongShader->setUniform("pointShadow.farPlane", pointLightFar);
     m_phongShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
