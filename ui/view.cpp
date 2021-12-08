@@ -128,7 +128,7 @@ void View::paintGL() {
         return;
 #endif
 
-#define DEBUG_POINT_SHADOW
+//#define DEBUG_POINT_SHADOW
 #ifdef DEBUG_POINT_SHADOW
         m_scene->renderPointShadowMapDEBUG(this);
         return;
