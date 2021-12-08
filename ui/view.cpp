@@ -74,8 +74,13 @@ void View::initializeGL() {
     m_camera->setAspectRatio(ratio);
     m_camera->updateMatrices();
 
+#ifdef __APPLE__
+    m_fboW = w * 2;
+    m_fboH = h * 2;
+#else
     m_fboW = w;
     m_fboH = h;
+#endif
 
     updateFBO();
 
@@ -158,7 +163,13 @@ void View::paintGL() {
 
     // draw the content of the color buffer using fullscreen quad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+#ifdef __APPLE__
+    glViewport(0, 0, width() * 2, height() * 2);
+#else
     glViewport(0, 0, width(), height());
+#endif
+
     m_quadShader->bind();
     m_toneMappingBuffer->getColorAttachment(0).bind();
     m_quad->draw();
