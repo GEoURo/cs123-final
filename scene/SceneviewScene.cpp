@@ -30,14 +30,19 @@ using namespace CS123::GL;
 using namespace std;
 using namespace glm;
 
-static float pointLightNear = 0.1f;
-static float pointLightFar = 60.0f;
+static float pointLightNear = 1.f;
+static float pointLightFar = 25.0f;
+
 static float dirLightNear = 0.1f;
 static float dirLightFar = 15.f;
 static float dirLightDisFromOrigin = 7.5f;
 static float dirLightOrthoSize = 10.f;
 
 glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
+
+static GLuint depthCubemap = 0;
+static GLuint depthMapFBO = 0;
+static int depthMapSize = 1024;
 
 SceneviewScene::SceneviewScene() :
     m_globalData({1, 1, 1, 1}),
@@ -56,6 +61,24 @@ SceneviewScene::SceneviewScene() :
 
     setupPrimitives();
     updatePrimitives(true);
+
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth cubemap texture
+    glGenTextures(1, &depthCubemap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+    for (unsigned int i = 0; i < 6; ++i)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    // attach depth texture as FBO's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 SceneviewScene::~SceneviewScene()
@@ -214,30 +237,24 @@ void SceneviewScene::renderShadow(View *context) {
     m_pointShadowID = -1;
 
     for (size_t i = 0; i < m_lights.size(); i++) {
-        // render the shadow in the light's direction
         switch (m_lights[i].type) {
-            case LightType::LIGHT_DIRECTIONAL:
-            {
-                if (m_dirShadowID == -1 && m_lights[i].id < 10) {
-                    // only consider the first encountered light
-                    m_dirShadowID = m_lights[i].id;
-                    renderDirectionShadow(m_lights[i]);
-                }
-                break;
+        case LightType::LIGHT_POINT:
+        {
+            if (m_pointShadowID == -1 && m_lights[i].id < MAX_NUM_LIGHTS) {
+                m_pointShadowID = m_lights[i].id;
+                renderPointShadow(m_lights[i]);
             }
-            case LightType::LIGHT_POINT:
-            {
-                if (m_pointShadowID == -1 && m_lights[i].id < 10) {
-                    // only consider the first encountered light
-                    m_pointShadowID = m_lights[i].id;
-                    renderPointShadow(m_lights[i]);
-                }
-                break;
-            }
-            default:
-                break;
+            break;
+        }
+        case LightType::LIGHT_DIRECTIONAL:
+        {
+            break;
+        }
+        default:
+            break;
         }
     }
+
     return;
 }
 
@@ -269,46 +286,33 @@ void SceneviewScene::renderDirectionShadow(CS123SceneLightData &light) {
 }
 
 void SceneviewScene::renderPointShadow(CS123SceneLightData &light) {
-    // basic config for the light space perspective
-    float aspect = 1.f;
-
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, pointLightNear, pointLightFar);
+    // 0. create depth cubemap transformation matrices
     vec3 lightPos = light.pos.xyz();
-    // setup shadow transformation for each face
+    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), 1.f, pointLightNear, pointLightFar);
     std::vector<glm::mat4> shadowTransforms;
-    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 
-    // bind the shadow map and the shader
-    m_pointShadowMap->bind();
-    m_pointShadowShader->bind();
+    // 1. render scene to depth cubemap
+    // --------------------------------
+    glViewport(0, 0, depthMapSize, depthMapSize);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        m_pointShadowShader->bind();
+        for (unsigned int i = 0; i < 6; ++i)
+            m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+        m_pointShadowShader->setUniform("farPlane", pointLightFar);
+        m_pointShadowShader->setUniform("lightPos", lightPos);
 
-    // clear depth buffer to prepare for render
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // set uniform variables
-    for (int i = 0; i < 6; i++) {
-        m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-    }
-    m_pointShadowShader->setUniform("farPlane", pointLightFar);
-    m_pointShadowShader->setUniform("lightPos", lightPos);
-
-    // render the scene
-    for (size_t i = 0; i < m_primitives.size(); i++) {
-        // setup CTM
-        m_pointShadowShader->setUniform("model", m_primitiveTrans[i]);
-
-        // draw the primitive
-        renderPrimitive(m_primitives[i].type);
-    }
-
-    // unbind the shadow map and the shader
-    m_pointShadowShader->unbind();
-    m_pointShadowMap->unbind();
+        for (size_t i = 0; i < m_primitives.size(); i++) {
+            m_pointShadowShader->setUniform("model", m_primitiveTrans[i]);
+            renderPrimitive(m_primitives[i].type);
+        }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void SceneviewScene::renderDirectionShadowMapDEBUG(View *context) {
@@ -329,39 +333,36 @@ void SceneviewScene::renderDirectionShadowMapDEBUG(View *context) {
 }
 
 void SceneviewScene::renderPointShadowMapDEBUG(View *context) {
+    Camera *camera = context->getCamera();
+
     setClearColor();
     glViewport(0, 0, context->width(), context->height());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_pointShadowDebugShader->bind();
 
-    // set light uniforms
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     for (int i = 0; i < MAX_NUM_LIGHTS; i++) {
-        std::ostringstream os;
-        os << i;
-        std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
-        m_pointShadowDebugShader->setUniform("lightColors" + indexString, glm::vec3(0.0f, 0.0f, 0.0f));
+        m_pointShadowDebugShader->setUniform("lightColors[" + std::to_string(i) + "]", glm::vec3(0.0f, 0.0f, 0.0f));
     }
 
     for (CS123SceneLightData &light : m_lights) {
         m_pointShadowDebugShader->setLight(light);
     }
 
-    // set scene uniforms
-    Camera *camera = context->getCamera();
     m_pointShadowDebugShader->setUniform("p" , camera->getProjectionMatrix());
     m_pointShadowDebugShader->setUniform("v", camera->getViewMatrix());
 
-    // set shadow map uniforms
-    m_pointShadowDebugShader->setUniform("pointLightID", m_pointShadowID);
-    m_pointShadowDebugShader->setUniform("pointLightFarPlane", pointLightFar);
-    m_pointShadowDebugShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
+    m_pointShadowDebugShader->setUniform("pointShadow.lightId", m_pointShadowID);
+    m_pointShadowDebugShader->setUniform("pointShadow.farPlane", pointLightFar);
+
+    GLint location = glGetUniformLocation(m_pointShadowDebugShader->getID(), "pointShadow.depthMap");
+    glUniform1i(location, 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
-        // setup CTM
         m_pointShadowDebugShader->setUniform("m", m_primitiveTrans[i]);
-
-        // draw the primitive
         renderPrimitive(m_primitives[i].type);
     }
 
@@ -379,25 +380,22 @@ void SceneviewScene::renderPhongPass(View *context) {
     m_phongShader->bind();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // set uniforms
+    setSceneUniforms(context->getCamera());
     setGlobalData();
-    setShadowMaps();
     clearLights();
     setLights();
-    setSceneUniforms(context);
 
-    renderGeometryAsFilledPolygons();
+    // set shadow map textures
+    setShadowMaps();
 
-    m_phongShader->unbind();
-}
-
-void SceneviewScene::renderGeometryAsFilledPolygons() {
     // setup polygon mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
         // setup the material
         CS123SceneMaterial material = m_primitives[i].material;
-        material.cSpecular = material.shininess == 0 ? vec4(0.f) : material.cSpecular;
         m_phongShader->applyMaterial(material);
 
         // setup CTM
@@ -407,82 +405,52 @@ void SceneviewScene::renderGeometryAsFilledPolygons() {
         CS123SceneFileMap textureMap = m_primitives[i].material.textureMap;
         if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
             // setup texture and bind the texture
-            m_phongShader->setUniform("useTexture", true);
-            m_phongShader->setTexture("diffuseTexture", *(m_textures[i].get()));
+            m_phongShader->setUniform("settings.useTexture", true);
+            m_phongShader->setTexture("material.diffuseTexture", *(m_textures[i].get()));
         } else {
-            m_phongShader->setUniform("useTexture", false);
+            m_phongShader->setUniform("settings.useTexture", false);
         }
 
         // draw the primitive
         renderPrimitive(m_primitives[i].type);
-
-        // unbind the texture
-        if (settings.textureMapping && textureMap.isUsed && m_textures[i] != nullptr) {
-            m_textures[i]->unbind();
-        }
     }
+
+    m_phongShader->unbind();
 }
 
 void SceneviewScene::renderPrimitive(PrimitiveType type) {
     switch (type) {
-        case PrimitiveType::PRIMITIVE_CONE:
-        {
-            m_cone->draw();
-            break;
-        }
-        case PrimitiveType::PRIMITIVE_CUBE:
-        {
-            m_cube->draw();
-            break;
-        }
-        case PrimitiveType::PRIMITIVE_CYLINDER:
-        {
-            m_cylinder->draw();
-            break;
-
-        }
-        case PrimitiveType::PRIMITIVE_SPHERE:
-        {
-            m_sphere->draw();
-            break;
-        }
-        case PrimitiveType::PRIMITIVE_TORUS:
-        case PrimitiveType::PRIMITIVE_MESH:
-        default:
-        {
-            m_cube->draw();
-            break;
-        }
+    case PrimitiveType::PRIMITIVE_CONE:
+        m_cone->draw();
+        break;
+    case PrimitiveType::PRIMITIVE_CUBE:
+        m_cube->draw();
+        break;
+    case PrimitiveType::PRIMITIVE_CYLINDER:
+        m_cylinder->draw();
+        break;
+    case PrimitiveType::PRIMITIVE_SPHERE:
+        m_sphere->draw();
+        break;
+    case PrimitiveType::PRIMITIVE_TORUS:
+    case PrimitiveType::PRIMITIVE_MESH:
+    default:
+        m_cube->draw();
+        break;
     }
 }
 
-void SceneviewScene::setGlobalData(){
+void SceneviewScene::setGlobalData() {
     // pass global data to shader.vert using m_phongShader
-    m_phongShader->setUniform("ka", m_globalData.ka);
-    m_phongShader->setUniform("kd", m_globalData.kd);
-    m_phongShader->setUniform("ks", m_globalData.ks);
+    m_phongShader->setUniform("global.ka", m_globalData.ka);
+    m_phongShader->setUniform("global.kd", m_globalData.kd);
+    m_phongShader->setUniform("global.ks", m_globalData.ks);
 }
 
-void SceneviewScene::setSceneUniforms(View *context) {
-    Camera *camera = context->getCamera();
+void SceneviewScene::setSceneUniforms(Camera *camera) {
     m_phongShader->setUniform("cameraPos", camera->getPosition());
     m_phongShader->setUniform("p" , camera->getProjectionMatrix());
     m_phongShader->setUniform("v", camera->getViewMatrix());
-}
-
-void SceneviewScene::setShadowMaps() {
-    // global switch
-    m_phongShader->setUniform("useShadow", settings.shadowMapping);
-
-    // point light uniforms
-    m_phongShader->setUniform("pointLightID", m_pointShadowID);
-    m_phongShader->setUniform("pointLightFarPlane", pointLightFar);
-    m_phongShader->setTexture("pointLightShadowMap", m_pointShadowMap->getDepthCube());
-
-    // dir light uniforms
-    m_phongShader->setUniform("dirLightID", m_dirShadowID);
-    m_phongShader->setUniform("dirLightSpaceMat", dirLightSpaceMatrix);
-    m_phongShader->setTexture("dirLightShadowMap", m_dirShadowMap->getDepthMap());
 }
 
 void SceneviewScene::setLights() {
@@ -493,9 +461,16 @@ void SceneviewScene::setLights() {
 
 void SceneviewScene::clearLights() {
     for (int i = 0; i < MAX_NUM_LIGHTS; i++) {
-        std::ostringstream os;
-        os << i;
-        std::string indexString = "[" + os.str() + "]"; // e.g. [0], [1], etc.
-        m_phongShader->setUniform("lightColors" + indexString, glm::vec3(0.0f, 0.0f, 0.0f));
+        m_phongShader->setUniform("lightColors[" + std::to_string(i) + "]", glm::vec3(0.0f, 0.0f, 0.0f));
     }
+}
+
+void SceneviewScene::setShadowMaps() {
+    // global switch
+    m_phongShader->setUniform("settings.useShadow", settings.shadowMapping);
+
+    // point light uniforms
+    m_phongShader->setUniform("pointShadow.lightId", m_pointShadowID);
+    m_phongShader->setUniform("pointShadow.farPlane", pointLightFar);
+    m_phongShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
 }

@@ -13,13 +13,11 @@ uniform mat4 p;
 uniform mat4 v;
 uniform mat4 m;
 
-uniform vec2 repeatUV;
-
 void main() {
     // calculate the actual texture UV after repeating UV times
     fragPos = m * vec4(position, 1.f);
     fragNormal = vec4(normalize(mat3(transpose(inverse(m))) * normal), 0);
-    texCoords = texCoord * repeatUV;
+    texCoords = texCoord;
 
     gl_Position = p * v * fragPos;
 }

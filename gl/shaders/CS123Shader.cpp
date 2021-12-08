@@ -25,12 +25,12 @@ glm::vec3 toGLMVec3(const CS123SceneColor &c) {
 }
 
 void CS123Shader::applyMaterial(const CS123SceneMaterial &material) {
-    setUniform("ambient_color", toGLMVec3(material.cAmbient));
-    setUniform("diffuse_color", toGLMVec3(material.cDiffuse));
-    setUniform("specular_color", toGLMVec3(material.cSpecular));
-    setUniform("shininess", material.shininess);
-    setUniform("blend", material.blend);
-    setUniform("repeatUV", glm::vec2(material.textureMap.repeatU, material.textureMap.repeatV));
+    setUniform("material.ambient", toGLMVec3(material.cAmbient));
+    setUniform("material.diffuse", toGLMVec3(material.cDiffuse));
+    setUniform("material.specular", toGLMVec3(material.cSpecular));
+    setUniform("material.shininess", material.shininess);
+    setUniform("material.blend", material.blend);
+    setUniform("material.repeatUV", glm::vec2(material.textureMap.repeatU, material.textureMap.repeatV));
 }
 
 void CS123Shader::setLight(const CS123SceneLightData &light) {

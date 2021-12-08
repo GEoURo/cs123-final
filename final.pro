@@ -162,6 +162,7 @@ DISTFILES += \
     shaders/pointShadow.frag \
     shaders/pointShadow.gsh \
     shaders/pointShadow.vert \
+    shaders/pointShadowDebug.frag \
     shaders/shadowmap.frag \
     shaders/shadowmap.vert \
     shaders/shadowmapDebug.frag \

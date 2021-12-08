@@ -35,7 +35,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::fileOpen() {
-    QString file = QFileDialog::getOpenFileName(this, QString(), "/course/cs123/data/");
+    QString file = QFileDialog::getOpenFileName(this, QString(), "/Users/jerry/Desktop/CSCI1230/data/scenes");
     if (file.isNull()) {
         return;
     }

@@ -122,10 +122,13 @@ void View::paintGL() {
     // let the scene prepare the shadow data if needed
     if (settings.shadowMapping) {
         m_scene->renderShadow(this);
+//#define DEBUG_DIRECTION_SHADOW
 #ifdef DEBUG_DIRECTION_SHADOW
         m_scene->renderDirectionShadowMapDEBUG(this);
         return;
 #endif
+
+#define DEBUG_POINT_SHADOW
 #ifdef DEBUG_POINT_SHADOW
         m_scene->renderPointShadowMapDEBUG(this);
         return;

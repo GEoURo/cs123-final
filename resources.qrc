@@ -9,10 +9,10 @@
         <file alias="tonemapping.frag">shaders/tonemapping.frag</file>
         <file alias="shadowmap.frag">shaders/shadowmap.frag</file>
         <file alias="shadowmap.vert">shaders/shadowmap.vert</file>
-        <file alias="pointShadow.frag">shaders/pointShadow.frag</file>
-        <file alias="pointShadow.vert">shaders/pointShadow.vert</file>
-        <file alias="pointShadow.gsh">shaders/pointShadow.gsh</file>
         <file alias="shadowmapDebug.frag">shaders/shadowmapDebug.frag</file>
-        <file alias="pointShadowDebug.frag">pointShadowDebug.frag</file>
+        <file alias="pointShadow.frag">shaders/pointShadow.frag</file>
+        <file alias="pointShadow.gsh">shaders/pointShadow.gsh</file>
+        <file alias="pointShadow.vert">shaders/pointShadow.vert</file>
+        <file alias="pointShadowDebug.frag">shaders/pointShadowDebug.frag</file>
     </qresource>
 </RCC>

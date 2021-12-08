@@ -14,6 +14,7 @@ namespace CS123 { namespace GL {
     class Texture2D;
 }}
 
+class Camera;
 class CubeShape;
 class ConeShape;
 class CylinderShape;
@@ -94,7 +95,7 @@ private:
     std::unique_ptr<CylinderShape> m_cylinder;
     std::unique_ptr<SphereShape> m_sphere;
 
-    void setSceneUniforms(View *context);
+    void setSceneUniforms(Camera *camera);
     void setGlobalData();
     void setShadowMaps();
     void setLights();
@@ -104,7 +105,6 @@ private:
     void renderPointShadow(CS123SceneLightData &light);
     void renderPhongPass(View *context);
 
-    void renderGeometryAsFilledPolygons();
     void renderPrimitive(PrimitiveType type);
 
     // shadow maps
