@@ -16,7 +16,7 @@
  */
 class OrbitingCamera : public Camera {
 public:
-    OrbitingCamera() : m_aspectRatio(1), m_angleX(0), m_angleY(0), m_zoomX(0), m_zoomZ(-5) {}
+    OrbitingCamera() : m_aspectRatio(1), m_angleX(0), m_angleY(0), m_translateX(0), m_translateZ(-5) {}
     ~OrbitingCamera() {}
 
     virtual void setAspectRatio(float aspectRatio);
@@ -30,8 +30,6 @@ public:
     virtual void mouseDragged(int x, int y);
     virtual void mouseScrolled(int delta);
 
-    void initializeValues();
-
     void moveForward();
     void moveBackward();
     void moveRight();
@@ -39,20 +37,28 @@ public:
 
     void updateMatrices();
 
+    void reset();
     void orientLook(const glm::vec4 &eye, const glm::vec4 &look, const glm::vec4 &up);
 
 private:
     void updateProjectionMatrix();
     void updateViewMatrix();
 
+    glm::mat4 m_originalView;
+
     glm::mat4x4 m_viewMatrix;
     glm::mat4x4 m_viewMatrixInverse;
     glm::mat4x4 m_projectionMatrix;
     glm::mat4x4 m_scaleMatrix;
 
+    glm::vec4 m_eye;
+    glm::vec4 m_look;
+    glm::vec4 m_up;
+    glm::vec4 m_u, m_v, m_w;
+
     float m_aspectRatio;
     float m_angleX, m_angleY;
-    float m_zoomX, m_zoomZ;
+    float m_translateX, m_translateZ;
     int m_oldX, m_oldY;
 };
 

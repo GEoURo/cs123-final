@@ -27,7 +27,7 @@ struct CS123Material {
     vec3 specular;
     float shininess;
     float blend;
-    float repeatUV;
+    vec2 repeatUV;
     sampler2D diffuseTexture;
 };
 
@@ -141,7 +141,7 @@ void main() {
         if (settings.useTexture) {
             // sample the texture color
             vec2 coords = texCoords * material.repeatUV;
-            vec3 cTexture = texture(material.diffuseTexture, texCoords).rgb;
+            vec3 cTexture = texture(material.diffuseTexture, coords).rgb;
 
             // blend the texture color with diffuse color
             cDiffuse = mix(cDiffuse, cTexture, material.blend);

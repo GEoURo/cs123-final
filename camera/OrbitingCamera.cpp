@@ -23,6 +23,8 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 
+using namespace glm;
+
 void OrbitingCamera::setAspectRatio(float aspectRatio) {
     m_aspectRatio = aspectRatio;
     updateProjectionMatrix();
@@ -63,27 +65,34 @@ void OrbitingCamera::mouseDragged(int x, int y) {
 void OrbitingCamera::mouseScrolled(int delta) {
     // Use an exponential factor so the zoom increments are small when we are
     // close to the object and large when we are far away from the object
-    m_zoomZ *= powf(0.999f, delta);
+    m_translateZ *= powf(0.999f, delta);
 
     updateViewMatrix();
 }
 
+void OrbitingCamera::reset() {
+    orientLook(glm::vec4(5, 5, 5, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 1, 0));
+}
+
 void OrbitingCamera::orientLook(const glm::vec4 &eye, const glm::vec4 &look, const glm::vec4 &up) {
-//    glm::vec4 w = -glm::normalize(look);
-//    glm::vec4 v = glm::normalize(up - glm::dot(up, w) * w);
-//    glm::vec4 u = glm::vec4(glm::cross(glm::vec3(v), glm::vec3(w)), 0.f);
+    m_eye = eye;
+    m_look = look;
+    m_up = up;
 
-//    m_rotationMatrix = glm::transpose(glm::mat4(u, v, w, glm::vec4(0.f, 0.f, 0.f, 1.f)));
+    m_w = -glm::normalize(look);
+    m_v = glm::normalize(up - glm::dot(up, m_w) * m_w);
+    m_u = glm::vec4(glm::cross(glm::vec3(m_v), glm::vec3(m_w)), 0.f);
 
-//    m_translationMatrix = mat4(1.f);
-//    m_translationMatrix[3] = vec4(-eye.x, -eye.y, -eye.z, 1.f);
+    m_originalView = glm::lookAt(glm::vec3(eye), glm::vec3(eye + look), glm::vec3(up));
 
-//        updateViewMatrix();
+    m_translateX = m_translateZ = m_angleX = m_angleY = 0.f;
+
+    updateViewMatrix();
+    updateProjectionMatrix();
 }
 
 void OrbitingCamera::updateMatrices() {
     updateProjectionMatrix();
-    updateViewMatrix();
 }
 
 void OrbitingCamera::updateProjectionMatrix() {
@@ -99,36 +108,30 @@ void OrbitingCamera::updateProjectionMatrix() {
 }
 
 void OrbitingCamera::updateViewMatrix() {
-    m_viewMatrix = glm::translate(glm::vec3(m_zoomX, 0.f, m_zoomZ)) *
-                   glm::rotate(glm::radians(m_angleY), glm::vec3(0.f, 1.f, 0.f)) *
-                   glm::rotate(glm::radians(m_angleX), glm::vec3(1.f, 0.f, 0.f));
+    m_viewMatrix = glm::translate(vec3(m_translateX, 0, m_translateZ)) *
+            m_originalView *
+                   glm::rotate(radians(m_angleY), vec3(0.f, 1.f, 0.f)) *
+                   glm::rotate(radians(m_angleX), vec3(1.f, 0.f, 0.f));
+
     m_viewMatrixInverse = glm::inverse(m_viewMatrix);
 }
 
-void OrbitingCamera::initializeValues() {
-    m_angleX = 0;
-    m_angleY = 0;
-    m_zoomZ = -5;
-    m_zoomX = 0;
-    updateViewMatrix();
-}
-
 void OrbitingCamera::moveForward() {
-    m_zoomZ += 0.1;
+    m_translateZ += 0.1;
     updateViewMatrix();
 }
 
 void OrbitingCamera::moveBackward() {
-    m_zoomZ -= 0.1;
+    m_translateZ -= 0.1;
     updateViewMatrix();
 }
 
 void OrbitingCamera::moveRight() {
-    m_zoomX -= 0.1;
+    m_translateX -= 0.1;
     updateViewMatrix();
 }
 
 void OrbitingCamera::moveLeft() {
-    m_zoomX += 0.1;
+    m_translateX += 0.1;
     updateViewMatrix();
 }

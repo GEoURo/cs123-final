@@ -14,6 +14,7 @@
 #include "camera/OrbitingCamera.h"
 #include "scene/SceneviewScene.h"
 
+#include "utils/CS123ISceneParser.h"
 #include "utils/ResourceLoader.h"
 #include "utils/settings.h"
 
@@ -190,7 +191,19 @@ void View::loadFromParser(CS123ISceneParser *parser) {
     m_scene->loadScene(parser);
     // make the shadow map twice the size of the screen size
     m_scene->updateFBO(m_fboW * 2, m_fboH * 2);
-    m_camera->initializeValues();
+
+    // Set the camera for the new scene
+    CS123SceneCameraData cameraData;
+    if (parser->getCameraData(cameraData)) {
+        cameraData.pos[3] = 1;
+        cameraData.look[3] = 0;
+        cameraData.up[3] = 0;
+
+        m_camera->orientLook(cameraData.pos, cameraData.look, cameraData.up);
+    } else {
+        m_camera->reset();
+    }
+
     update();
 }
 
