@@ -18,10 +18,7 @@ public:
 private:
     int m_size;
     unsigned int m_handle;
-
     TextureCube m_depthCube;
-
-    void setupDepthCube();
 };
 
 }}

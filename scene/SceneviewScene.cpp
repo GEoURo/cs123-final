@@ -208,7 +208,7 @@ void SceneviewScene::settingsChanged() {
 
 void SceneviewScene::updateFBO(int w, int h) {
     m_dirShadowMap = make_unique<ShadowMap>(w, h);
-//    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
+    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
 }
 
 void SceneviewScene::renderShadow(View *context) {
@@ -221,8 +221,8 @@ void SceneviewScene::renderShadow(View *context) {
         case LightType::LIGHT_POINT:
         {
             if (m_pointShadowID == -1 && m_lights[i].id < MAX_NUM_LIGHTS) {
-//                m_pointShadowID = m_lights[i].id;
-//                renderPointShadow(m_lights[i]);
+                m_pointShadowID = m_lights[i].id;
+                renderPointShadow(m_lights[i]);
             }
             break;
         }
@@ -283,7 +283,7 @@ void SceneviewScene::renderPointShadow(CS123SceneLightData &light) {
     m_pointShadowMap->bind();
     m_pointShadowShader->bind();
     glClearColor(0, 0, 0, 1);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (int i = 0; i < 6; i++) {
         m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
@@ -467,7 +467,7 @@ void SceneviewScene::setShadowMaps() {
     m_phongShader->setTexture("directionalShadow.depthMap", m_dirShadowMap->getDepthMap());
 
     // point shadow uniforms
-//    m_phongShader->setUniform("pointShadow.lightId", m_pointShadowID);
-//    m_phongShader->setUniform("pointShadow.farPlane", pointLightFar);
-//    m_phongShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
+    m_phongShader->setUniform("pointShadow.lightId", m_pointShadowID);
+    m_phongShader->setUniform("pointShadow.farPlane", pointLightFar);
+    m_phongShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
 }

@@ -17,21 +17,16 @@ ShadowCube::ShadowCube(int size) :
     // Call bind()
     bind();
 
-    // setup the depth cube correctly
-    setupDepthCube();
+    // attach the depth texture tp FBO's depth buffer
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthCube.id(), 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
 
     // This will make sure your framebuffer was generated correctly!
     checkFramebufferStatus();
 
     // unbind the frame buffer
     unbind();
-}
-
-void ShadowCube::setupDepthCube() {
-    // attach the depth texture tp FBO's depth buffer
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthCube.id(), 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
 }
 
 void ShadowCube::bind() {
