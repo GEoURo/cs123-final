@@ -83,7 +83,8 @@ float directionalShadowCalculation(vec4 fragPosLightSpace) {
     // calculate bias (based on depth map resolution and slope)
     vec3 normal = vec3(fragNormal);
     vec3 lightDir = normalize(lightDirections[directionalShadow.lightId]);
-    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+//    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    float bias = 0.005;
     // PCF
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(directionalShadow.depthMap, 0);
