@@ -40,8 +40,6 @@ static float dirLightOrthoSize = 10.f;
 
 glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
 
-static GLuint depthCubemap = 0;
-static GLuint depthMapFBO = 0;
 static int depthMapSize = 1024;
 
 SceneviewScene::SceneviewScene() :
@@ -61,24 +59,6 @@ SceneviewScene::SceneviewScene() :
 
     setupPrimitives();
     updatePrimitives(true);
-
-    glGenFramebuffers(1, &depthMapFBO);
-    // create depth cubemap texture
-    glGenTextures(1, &depthCubemap);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-    for (unsigned int i = 0; i < 6; ++i)
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    // attach depth texture as FBO's depth buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 SceneviewScene::~SceneviewScene()
@@ -228,7 +208,7 @@ void SceneviewScene::settingsChanged() {
 
 void SceneviewScene::updateFBO(int w, int h) {
     m_dirShadowMap = make_unique<ShadowMap>(w, h);
-    m_pointShadowMap = make_unique<ShadowCube>(std::max(w, h));
+    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
 }
 
 void SceneviewScene::renderShadow(View *context) {
@@ -300,27 +280,37 @@ void SceneviewScene::renderPointShadow(CS123SceneLightData &light) {
 
     // 1. render scene to depth cubemap
     // --------------------------------
-    glViewport(0, 0, depthMapSize, depthMapSize);
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        m_pointShadowShader->bind();
-        for (unsigned int i = 0; i < 6; ++i)
-            m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-        m_pointShadowShader->setUniform("farPlane", pointLightFar);
-        m_pointShadowShader->setUniform("lightPos", lightPos);
+    m_pointShadowMap->bind();
+    m_pointShadowShader->bind();
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-        for (size_t i = 0; i < m_primitives.size(); i++) {
-            m_pointShadowShader->setUniform("model", m_primitiveTrans[i]);
-            renderPrimitive(m_primitives[i].type);
-        }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    for (int i = 0; i < 6; i++) {
+        m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+    }
+    m_pointShadowShader->setUniform("farPlane", pointLightFar);
+    m_pointShadowShader->setUniform("lightPos", lightPos);
+
+    for (size_t i = 0; i < m_primitives.size(); i++) {
+        m_pointShadowShader->setUniform("model", m_primitiveTrans[i]);
+        renderPrimitive(m_primitives[i].type);
+    }
+
+    m_pointShadowShader->unbind();
+    m_pointShadowMap->unbind();
 }
 
 void SceneviewScene::renderDirectionShadowMapDEBUG(View *context) {
     FullScreenQuad quad;
 
     setClearColor();
+
+#ifdef __APPLE__
+    glViewport(0, 0, context->width() * 2, context->height() * 2);
+#else
     glViewport(0, 0, context->width(), context->height());
+#endif
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_dirShadowDebugShader->bind();
@@ -337,7 +327,12 @@ void SceneviewScene::renderPointShadowMapDEBUG(View *context) {
     Camera *camera = context->getCamera();
 
     setClearColor();
+
+#ifdef __APPLE__
+    glViewport(0, 0, context->width() * 2, context->height() * 2);
+#else
     glViewport(0, 0, context->width(), context->height());
+#endif
 
     m_pointShadowDebugShader->bind();
 
@@ -356,11 +351,7 @@ void SceneviewScene::renderPointShadowMapDEBUG(View *context) {
 
     m_pointShadowDebugShader->setUniform("pointShadow.lightId", m_pointShadowID);
     m_pointShadowDebugShader->setUniform("pointShadow.farPlane", pointLightFar);
-
-    GLint location = glGetUniformLocation(m_pointShadowDebugShader->getID(), "pointShadow.depthMap");
-    glUniform1i(location, 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+    m_pointShadowDebugShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
         m_pointShadowDebugShader->setUniform("m", m_primitiveTrans[i]);
