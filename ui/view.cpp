@@ -207,6 +207,11 @@ void View::loadFromParser(CS123ISceneParser *parser) {
     update();
 }
 
+void View::resetCamera() {
+    m_camera->reset();
+    update();
+}
+
 void View::settingsChanged() {
     if (m_scene == nullptr) {
         return;

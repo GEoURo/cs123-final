@@ -71,7 +71,13 @@ void OrbitingCamera::mouseScrolled(int delta) {
 }
 
 void OrbitingCamera::reset() {
-    orientLook(glm::vec4(5, 5, 5, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, 0, 1, 0));
+    m_originalView = glm::lookAt(vec3(1, 1, 1), vec3(0, 0, 0), vec3(0, 1, 0));
+
+    m_translateX = m_angleX = m_angleY = 0.f;
+    m_translateZ = -5;
+
+    updateViewMatrix();
+    updateProjectionMatrix();
 }
 
 void OrbitingCamera::orientLook(const glm::vec4 &eye, const glm::vec4 &look, const glm::vec4 &up) {
@@ -109,7 +115,7 @@ void OrbitingCamera::updateProjectionMatrix() {
 
 void OrbitingCamera::updateViewMatrix() {
     m_viewMatrix = glm::translate(vec3(m_translateX, 0, m_translateZ)) *
-            m_originalView *
+                   m_originalView *
                    glm::rotate(radians(m_angleY), vec3(0.f, 1.f, 0.f)) *
                    glm::rotate(radians(m_angleX), vec3(1.f, 0.f, 0.f));
 

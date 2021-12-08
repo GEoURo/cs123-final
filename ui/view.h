@@ -27,6 +27,8 @@ public:
 
     Camera *getCamera();
 
+    void resetCamera();
+
     void loadFromParser(CS123ISceneParser *parser);
     virtual void settingsChanged();
 

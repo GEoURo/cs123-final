@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // setup SIGNAL and SLOT connections
     connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(fileOpen()));
+    connect(ui->resetCameraButton, SIGNAL(clicked()), this, SLOT(resetCamera()));
 
     // setup databindings
     setupDataBindings();
@@ -53,6 +54,11 @@ void MainWindow::fileOpen() {
         }
     }
 }
+
+void MainWindow::resetCamera() {
+    ui->view->resetCamera();
+}
+
 
 void MainWindow::settingsChanged() {
     ui->view->settingsChanged();

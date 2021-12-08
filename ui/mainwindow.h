@@ -27,6 +27,8 @@ public slots:
     // Displays a dialog box to open a 3D scene file.
     void fileOpen();
 
+    void resetCamera();
+
     // A callback function to indicate certain value changes in the settings
     void settingsChanged();
 
