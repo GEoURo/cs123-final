@@ -154,7 +154,7 @@ void View::paintGL() {
     m_toneMappingShader->setUniform("exposure", settings.exposure);
     m_toneMappingShader->setUniform("gamma", settings.gamma);
     m_toneMappingShader->setUniform("hdrEnabled", settings.hdr);
-    m_toneMappingShader->setTexture("colorAttachment", m_colorBuffer->getColorAttachment(0));
+    m_toneMappingShader->setTexture("hdrBuffer", m_colorBuffer->getColorAttachment(0));
 
     m_quad->draw();
 
