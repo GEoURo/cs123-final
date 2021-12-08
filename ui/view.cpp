@@ -91,6 +91,7 @@ void View::initializeGL() {
     // load shaders
     loadQuadShader();
     loadToneMappingShader();
+    loadDepthFieldShader();
 }
 
 void View::loadQuadShader() {
@@ -104,7 +105,11 @@ void View::loadToneMappingShader() {
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/tonemapping.frag");
     m_toneMappingShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 }
-
+void View::loadDepthFieldShader() {
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/fullscreenquad.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/depthField.frag");
+    m_depthFieldShader = std::make_unique<Shader>(vertexSource, fragmentSource);
+}
 void View::updateFBO() {
     m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, m_fboW, m_fboH,
                                      TextureParameters::WRAP_METHOD::REPEAT,
@@ -115,6 +120,11 @@ void View::updateFBO() {
                                            TextureParameters::WRAP_METHOD::REPEAT,
                                            TextureParameters::FILTER_METHOD::LINEAR,
                                            GL_FLOAT);
+
+    m_depthFieldBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::NONE, m_fboW, m_fboH,
+                                          TextureParameters::WRAP_METHOD::REPEAT,
+                                          TextureParameters::FILTER_METHOD::LINEAR,
+                                          GL_FLOAT);
 
     // make the shadow map twice the size of the screen size
     if (m_scene) { m_scene->updateFBO(m_fboW * 2, m_fboH * 2); }
@@ -160,6 +170,17 @@ void View::paintGL() {
 
     m_toneMappingBuffer->unbind();
 
+    //Simon : render the depth of field pass
+    m_depthFieldBuffer->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_depthFieldShader->bind();
+    m_depthFieldShader->setUniform("exposure", settings.exposure);
+    m_depthFieldShader->setUniform("gamma", settings.gamma);
+    m_depthFieldShader->setUniform("hdrEnabled", settings.hdr);
+    m_depthFieldShader->setTexture("colorTexture", m_toneMappingBuffer->getColorAttachment(0));
+    m_quad->draw();
+    m_depthFieldBuffer->unbind();
+
     // draw the content of the color buffer using fullscreen quad
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -170,7 +191,7 @@ void View::paintGL() {
 #endif
 
     m_quadShader->bind();
-    m_quadShader->setTexture("colorAttachment", m_toneMappingBuffer->getColorAttachment(0));
+    m_quadShader->setTexture("colorAttachment", m_depthFieldBuffer->getColorAttachment(0));
 
     m_quad->draw();
 
