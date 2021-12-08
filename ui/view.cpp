@@ -153,12 +153,10 @@ void View::paintGL() {
     m_toneMappingShader->setUniform("exposure", settings.exposure);
     m_toneMappingShader->setUniform("gamma", settings.gamma);
     m_toneMappingShader->setUniform("hdrEnabled", settings.hdr);
-
-    m_colorBuffer->getColorAttachment(0).bind();
+    m_toneMappingShader->setTexture("colorAttachment", m_colorBuffer->getColorAttachment(0));
 
     m_quad->draw();
 
-    m_colorBuffer->getColorAttachment(0).unbind();
     m_toneMappingBuffer->unbind();
 
     // draw the content of the color buffer using fullscreen quad
@@ -171,9 +169,10 @@ void View::paintGL() {
 #endif
 
     m_quadShader->bind();
-    m_toneMappingBuffer->getColorAttachment(0).bind();
+    m_quadShader->setTexture("colorAttachment", m_toneMappingBuffer->getColorAttachment(0));
+
     m_quad->draw();
-    m_toneMappingBuffer->getColorAttachment(0).unbind();
+
     m_quadShader->unbind();
 }
 

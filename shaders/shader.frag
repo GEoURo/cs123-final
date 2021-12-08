@@ -55,7 +55,7 @@ uniform CS123GlobalData global;
 uniform CS123Material material;
 
 // point shadow
-uniform CS123PointShadowMap pointShadow;
+//uniform CS123PointShadowMap pointShadow;
 
 // directional shadow
 uniform CS123DirectionalShadowMap directionalShadow;

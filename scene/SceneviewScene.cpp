@@ -208,7 +208,7 @@ void SceneviewScene::settingsChanged() {
 
 void SceneviewScene::updateFBO(int w, int h) {
     m_dirShadowMap = make_unique<ShadowMap>(w, h);
-    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
+//    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
 }
 
 void SceneviewScene::renderShadow(View *context) {
@@ -221,8 +221,8 @@ void SceneviewScene::renderShadow(View *context) {
         case LightType::LIGHT_POINT:
         {
             if (m_pointShadowID == -1 && m_lights[i].id < MAX_NUM_LIGHTS) {
-                m_pointShadowID = m_lights[i].id;
-                renderPointShadow(m_lights[i]);
+//                m_pointShadowID = m_lights[i].id;
+//                renderPointShadow(m_lights[i]);
             }
             break;
         }
@@ -467,7 +467,7 @@ void SceneviewScene::setShadowMaps() {
     m_phongShader->setTexture("directionalShadow.depthMap", m_dirShadowMap->getDepthMap());
 
     // point shadow uniforms
-    m_phongShader->setUniform("pointShadow.lightId", m_pointShadowID);
-    m_phongShader->setUniform("pointShadow.farPlane", pointLightFar);
-    m_phongShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
+//    m_phongShader->setUniform("pointShadow.lightId", m_pointShadowID);
+//    m_phongShader->setUniform("pointShadow.farPlane", pointLightFar);
+//    m_phongShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
 }
