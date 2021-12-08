@@ -25,15 +25,7 @@
 		<color r="1" g="1" b="1"/>
 		<function v1="1.5" v2="0" v3="0"/>
 		<type v="directional"/>
-		<direction x="0.25" y="1" z="-1"/>
-	</lightdata>
-
-	<lightdata>
-		<id v="2"/>
-		<color r="1" g="1" b="1"/>
-		<function v1="1.5" v2="0" v3="0"/>
-		<type v="directional"/>
-		<direction x="1" y="-1.8" z="-2"/>
+		<direction x="0.25" y="-2" z="-1"/>
 	</lightdata>
 
 	<object type="tree" name="level1">
