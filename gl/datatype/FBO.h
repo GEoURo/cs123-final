@@ -14,7 +14,7 @@ class Texture2D;
 class FBO {
 public:
 
-    enum class DEPTH_STENCIL_ATTACHMENT { DEPTH_ONLY, DEPTH_STENCIL, NONE };
+    enum class DEPTH_STENCIL_ATTACHMENT { DEPTH_ONLY, DEPTH_ONLY_TEXTURE ,DEPTH_STENCIL, NONE };
 
     FBO(int numberOfColorAttachments, DEPTH_STENCIL_ATTACHMENT attachmentType, int m_width, int m_height,
         TextureParameters::WRAP_METHOD wrapMethod = TextureParameters::WRAP_METHOD::REPEAT,
@@ -27,7 +27,7 @@ public:
 
     const Texture2D& getColorAttachment(int i) const;
     const RenderBuffer& getDepthStencilAttachment() const;
-
+    const Texture2D& getDepthTextureAttachment() const;
     size_t getNumColorAttachments() const;
 
 private:
@@ -38,6 +38,7 @@ private:
     void generateDepthStencilAttachment();
 
     std::vector<Texture2D> m_colorAttachments;
+    std::unique_ptr<Texture2D> m_depthTectureAttachment;
     std::unique_ptr<RenderBuffer> m_depthAttachment;
     DEPTH_STENCIL_ATTACHMENT m_depthStencilAttachmentType;
 

@@ -4,6 +4,7 @@ in vec2 texCoord;
 out vec4 fragColor;
 
 uniform sampler2D colorTexture;
+uniform sampler2D depthTexture;
 
 uniform float exposure;
 uniform float gamma;
@@ -18,26 +19,31 @@ void main(void) {
     float separation =  10;
     fragColor.rgb = vec3(0);
     float count = 0.0;
+    float depth = texture(depthTexture, texCoord).r;
 
+    if (depth>=0.1 && depth <=0.9){
+        for (int i = -size; i <= size; ++i) {
+            for (int j = -size; j <= size; ++j) {
+                fragColor.rgb +=
+                    texture
+                ( colorTexture
+                ,   ( gl_FragCoord.xy
+                    + (vec2(i, j) * separation)
+                    )
+                  / texSize
+                ).rgb;
 
-    for (int i = -size; i <= size; ++i) {
-        for (int j = -size; j <= size; ++j) {
-            fragColor.rgb +=
-                texture
-            ( colorTexture
-            ,   ( gl_FragCoord.xy
-                + (vec2(i, j) * separation)
-                )
-              / texSize
-            ).rgb;
+            count += 1.0;
+          }
+        }
 
-        count += 1.0;
-      }
+        fragColor.rgb /= count;
+    }else{
+        fragColor = texture(colorTexture, texCoord);
     }
 
-    fragColor.rgb /= count;
 
-
+    fragColor.rgb += depth*0.01;
 
 
 }

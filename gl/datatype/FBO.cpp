@@ -61,6 +61,20 @@ void FBO::generateDepthStencilAttachment() {
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthAttachment->id());
             break;
         }
+        case DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY_TEXTURE:
+        {
+            m_depthTectureAttachment = std::make_unique<Texture2D>(nullptr, m_width, m_height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+            TextureParametersBuilder builder;
+
+            builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
+            builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_BORDER);
+
+            TextureParameters param = builder.build();
+            param.applyTo(*m_depthTectureAttachment);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTectureAttachment->id(), 0);
+
+            break;
+        }
         case DEPTH_STENCIL_ATTACHMENT::DEPTH_STENCIL:
             // Left as an exercise to students
             break;
@@ -106,4 +120,8 @@ const Texture2D& FBO::getColorAttachment(int i) const {
 
 const RenderBuffer& FBO::getDepthStencilAttachment() const {
     return *m_depthAttachment.get();
+}
+
+const Texture2D& FBO::getDepthTextureAttachment() const {
+    return *m_depthTectureAttachment;
 }

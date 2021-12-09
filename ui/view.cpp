@@ -111,7 +111,7 @@ void View::loadDepthFieldShader() {
     m_depthFieldShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 }
 void View::updateFBO() {
-    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY, m_fboW, m_fboH,
+    m_colorBuffer = make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY_TEXTURE, m_fboW, m_fboH,
                                      TextureParameters::WRAP_METHOD::REPEAT,
                                      TextureParameters::FILTER_METHOD::LINEAR,
                                      GL_FLOAT);
@@ -125,6 +125,7 @@ void View::updateFBO() {
                                           TextureParameters::WRAP_METHOD::REPEAT,
                                           TextureParameters::FILTER_METHOD::LINEAR,
                                           GL_FLOAT);
+
 
     // make the shadow map twice the size of the screen size
     if (m_scene) { m_scene->updateFBO(m_fboW * 2, m_fboH * 2); }
@@ -171,31 +172,32 @@ void View::paintGL() {
     m_toneMappingBuffer->unbind();
 
     //Simon : render the depth of field pass
-    m_depthFieldBuffer->bind();
+//    m_depthFieldBuffer->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_depthFieldShader->bind();
     m_depthFieldShader->setUniform("exposure", settings.exposure);
     m_depthFieldShader->setUniform("gamma", settings.gamma);
     m_depthFieldShader->setUniform("hdrEnabled", settings.hdr);
     m_depthFieldShader->setTexture("colorTexture", m_toneMappingBuffer->getColorAttachment(0));
+    m_depthFieldShader->setTexture("depthTexture", m_colorBuffer->getDepthTextureAttachment());
     m_quad->draw();
-    m_depthFieldBuffer->unbind();
+//    m_depthFieldBuffer->unbind();
 
-    // draw the content of the color buffer using fullscreen quad
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//    // draw the content of the color buffer using fullscreen quad
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-#ifdef __APPLE__
-    glViewport(0, 0, width() * 2, height() * 2);
-#else
-    glViewport(0, 0, width(), height());
-#endif
+//#ifdef __APPLE__
+//    glViewport(0, 0, width() * 2, height() * 2);
+//#else
+//    glViewport(0, 0, width(), height());
+//#endif
 
-    m_quadShader->bind();
-    m_quadShader->setTexture("colorAttachment", m_depthFieldBuffer->getColorAttachment(0));
+//    m_quadShader->bind();
+//    m_quadShader->setTexture("colorAttachment", m_depthFieldBuffer->getColorAttachment(0));
 
-    m_quad->draw();
+//    m_quad->draw();
 
-    m_quadShader->unbind();
+//    m_quadShader->unbind();
 }
 
 void View::resizeGL(int w, int h) {
