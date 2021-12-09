@@ -30,8 +30,8 @@ using namespace CS123::GL;
 using namespace std;
 using namespace glm;
 
-static float pointLightNear = 1.f;
-static float pointLightFar = 25.0f;
+static float pointLightNear = 0.1f;
+static float pointLightFar = 50.0f;
 
 static float dirLightNear = 0.1f;
 static float dirLightFar = 15.f;
@@ -41,6 +41,7 @@ static float dirLightOrthoSize = 10.f;
 glm::mat4 dirLightSpaceMatrix = glm::mat4(1.f);
 
 static int depthMapSize = 1024;
+static GLuint testCubeMap = 0;
 
 SceneviewScene::SceneviewScene() :
     m_globalData({1, 1, 1, 1}),
@@ -59,10 +60,52 @@ SceneviewScene::SceneviewScene() :
 
     setupPrimitives();
     updatePrimitives(true);
+
+    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
+
+    // test cube map
+    float *data0 = new float[depthMapSize * depthMapSize];
+    float *data1 = new float[depthMapSize * depthMapSize];
+    float *data2 = new float[depthMapSize * depthMapSize];
+    float *data3 = new float[depthMapSize * depthMapSize];
+    float *data4 = new float[depthMapSize * depthMapSize];
+    float *data5 = new float[depthMapSize * depthMapSize];
+
+    for (int i = 0; i < depthMapSize * depthMapSize; i++) {
+        data0[i] = 0.0;
+        data1[i] = 0.2;
+        data2[i] = 0.4;
+        data3[i] = 0.6;
+        data4[i] = 0.8;
+        data5[i] = 1.0;
+    }
+
+    glGenTextures(1, &testCubeMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, testCubeMap);
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_DEPTH_COMPONENT24, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data0);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_DEPTH_COMPONENT24, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data1);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_DEPTH_COMPONENT24, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data2);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_DEPTH_COMPONENT24, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data3);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_DEPTH_COMPONENT24, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data4);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_DEPTH_COMPONENT24, depthMapSize, depthMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, data5);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    delete [] data0;
+    delete [] data1;
+    delete [] data2;
 }
 
 SceneviewScene::~SceneviewScene()
 {
+    glDeleteTextures(1, &testCubeMap);
 }
 
 void SceneviewScene::loadScene(CS123ISceneParser *parser) {
@@ -208,7 +251,6 @@ void SceneviewScene::settingsChanged() {
 
 void SceneviewScene::updateFBO(int w, int h) {
     m_dirShadowMap = make_unique<ShadowMap>(w, h);
-    m_pointShadowMap = make_unique<ShadowCube>(depthMapSize);
 }
 
 void SceneviewScene::renderShadow(View *context) {
@@ -352,6 +394,9 @@ void SceneviewScene::renderPointShadowMapDEBUG(View *context) {
     m_pointShadowDebugShader->setUniform("pointShadow.lightId", m_pointShadowID);
     m_pointShadowDebugShader->setUniform("pointShadow.farPlane", pointLightFar);
     m_pointShadowDebugShader->setTexture("pointShadow.depthMap", m_pointShadowMap->getDepthCube());
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_CUBE_MAP, testCubeMap);
+//    glUniform1i(glGetUniformLocation(m_pointShadowDebugShader->getID(), "pointShadow.depthMap"), 0);
 
     for (size_t i = 0; i < m_primitives.size(); i++) {
         m_pointShadowDebugShader->setUniform("m", m_primitiveTrans[i]);
