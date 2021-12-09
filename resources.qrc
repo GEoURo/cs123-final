@@ -14,5 +14,6 @@
         <file alias="pointShadow.gsh">shaders/pointShadow.gsh</file>
         <file alias="pointShadow.vert">shaders/pointShadow.vert</file>
         <file alias="pointShadowDebug.frag">shaders/pointShadowDebug.frag</file>
+        <file alias="depthField.frag">shaders/depthField.frag</file>
     </qresource>
 </RCC>

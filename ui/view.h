@@ -48,6 +48,8 @@ private:
 
     std::unique_ptr<CS123::GL::FBO> m_toneMappingBuffer;
     std::unique_ptr<CS123::GL::Shader> m_toneMappingShader;
+    std::unique_ptr<CS123::GL::FBO> m_depthFieldBuffer;
+    std::unique_ptr<CS123::GL::Shader> m_depthFieldShader;
 
     std::unique_ptr<CS123::GL::Shader> m_quadShader;
     std::unique_ptr<CS123::GL::FullScreenQuad> m_quad;
@@ -69,6 +71,7 @@ private:
 
     void loadQuadShader();
     void loadToneMappingShader();
+    void loadDepthFieldShader();
     void updateFBO();
 
 private slots:
