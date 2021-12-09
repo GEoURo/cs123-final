@@ -8,9 +8,10 @@
 using namespace CS123::GL;
 
 ShadowCube::ShadowCube(int size) :
-    m_size(size),
-    m_depthCube(TextureCube(nullptr, size, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT))
+    m_size(size)
 {
+    m_depthCube = std::make_unique<TextureCube>(nullptr, size, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT);
+
     // Generate a new framebuffer using m_handle
     glGenFramebuffers(1, &m_handle);
 
@@ -18,7 +19,7 @@ ShadowCube::ShadowCube(int size) :
     bind();
 
     // attach the depth texture tp FBO's depth buffer
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthCube.id(), 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthCube->id(), 0);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
@@ -41,5 +42,5 @@ void ShadowCube::unbind() {
 }
 
 const TextureCube& ShadowCube::getDepthCube() const {
-    return m_depthCube;
+    return *(m_depthCube.get());
 }

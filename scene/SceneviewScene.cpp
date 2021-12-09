@@ -282,8 +282,8 @@ void SceneviewScene::renderPointShadow(CS123SceneLightData &light) {
     // --------------------------------
     m_pointShadowMap->bind();
     m_pointShadowShader->bind();
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, depthMapSize, depthMapSize);
 
     for (int i = 0; i < 6; i++) {
         m_pointShadowShader->setUniform("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);

@@ -3,6 +3,8 @@
 
 #include "gl/textures/TextureCube.h"
 
+#include <memory>
+
 namespace CS123 { namespace GL {
 
 class ShadowCube
@@ -18,7 +20,7 @@ public:
 private:
     int m_size;
     unsigned int m_handle;
-    TextureCube m_depthCube;
+    std::unique_ptr<TextureCube> m_depthCube;
 };
 
 }}
