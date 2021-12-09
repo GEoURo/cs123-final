@@ -83,7 +83,7 @@ void MainWindow::setupDataBindings() {
     BIND(FloatBinding::bindSliderAndTextbox(ui->fovSlider, ui->fovInput, settings.cameraFov, 1.f, 179.f));
     BIND(FloatBinding::bindSliderAndTextbox(ui->nearSlider, ui->nearInput, settings.cameraNear, 0.1f, 50.f));
     BIND(FloatBinding::bindSliderAndTextbox(ui->farSlider, ui->farInput, settings.cameraFar, 0.1f, 50.f));
-    BIND(FloatBinding::bindSliderAndTextbox(ui->dofSlider, ui->dofInput, settings.cameraDof, 1.f, 179.f));
+    BIND(FloatBinding::bindSliderAndTextbox(ui->dofSlider, ui->dofInput, settings.cameraDof, 0.f, 30.f));
 
     BIND(FloatBinding::bindSliderAndTextbox(ui->exposureSlider, ui->exposureInput, settings.exposure, 0.1f, 10.f));
     BIND(FloatBinding::bindSliderAndTextbox(ui->gammaSlider, ui->gammaInput, settings.gamma, 0.1f, 5.f));

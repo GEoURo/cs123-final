@@ -176,8 +176,9 @@ void View::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_depthFieldShader->bind();
     m_depthFieldShader->setUniform("exposure", settings.exposure);
-    m_depthFieldShader->setUniform("gamma", settings.gamma);
-    m_depthFieldShader->setUniform("hdrEnabled", settings.hdr);
+    m_depthFieldShader->setUniform("depthOfField", settings.cameraDof);
+    m_depthFieldShader->setUniform("zNear", settings.cameraNear);
+    m_depthFieldShader->setUniform("zFar", settings.cameraFar);
     m_depthFieldShader->setTexture("colorTexture", m_toneMappingBuffer->getColorAttachment(0));
     m_depthFieldShader->setTexture("depthTexture", m_colorBuffer->getDepthTextureAttachment());
     m_quad->draw();
