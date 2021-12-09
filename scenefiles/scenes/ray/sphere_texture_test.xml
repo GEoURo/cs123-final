@@ -43,7 +43,7 @@
 	<object type="tree" name="root">
 		<transblock>
 				<object type="primitive" name="sphere" >
-				<texture file="/Users/jerrygu/Desktop/Brown/Courses/CSCI1230/data/image/board.png" u="4" v="4"/>
+				<texture file="/course/cs123/data/image/board.png" u="4" v="4"/>
 				<blend v="1.0"/>
 				<reflective r="0.9" g="0.9" b="0.9"/>
 				<diffuse r="1.0" g="1.0" b="1.0"/>

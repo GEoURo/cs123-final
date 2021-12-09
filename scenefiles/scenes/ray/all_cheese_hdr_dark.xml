@@ -21,9 +21,9 @@
 
 	<lightdata>
 		<id v="1"/>
-		<color r="5" g="5" b="5"/>
-		<position x="0" y="10" z="0"/>
-		<function x="0" y="0" z="1"/>
+		<color r="0.1" g="0.1" b="0.1"/>
+		<type v="directional"/>
+		<direction x="-2" y="-1" z="0"/>
 	</lightdata>
 
 	<object type="tree" name="root">
@@ -31,7 +31,7 @@
 			<translate x="0" y="-0.6" z="0"/>
 			<scale x="6" y="0.2" z="6"/>
 			<object type="primitive" name="cube" >
-				<texture file="/Users/jerry/Desktop/CSCI1230/data/image/cheese.png" u="1" v="1"/>
+				<texture file="/course/cs123/data/image/cheese.png" u="1" v="1"/>
 				<diffuse r="1" g="1" b="0.5"/>
 				<blend v="0.8"/>
 			</object>
@@ -40,7 +40,7 @@
 			<translate x="-0.8" y="0" z="-0.8"/>
 			<rotate x="0" y="1" z="1" angle="45"/>
 			<object type="primitive" name="sphere" >
-				<texture file="/Users/jerry/Desktop/CSCI1230/data/image/cheese.png" u="1" v="1"/>
+				<texture file="/course/cs123/data/image/cheese.png" u="1" v="1"/>
 				<reflective r="0.3" g="0.3" b="0.3"/>
 				<diffuse r="0" g="1" b="0"/>
 				<blend v="0.8"/>
@@ -52,7 +52,7 @@
 			<translate x="0.8" y="0" z="-0.8"/>
 			<object type="primitive" name="cube" >
 				<reflective r="0.5" g="0.5" b="0.5"/>
-				<texture file="/Users/jerry/Desktop/CSCI1230/data/image/cheese.png" u="1" v="1"/>
+				<texture file="/course/cs123/data/image/cheese.png" u="1" v="1"/>
 				<blend v="1.0"/>
 			</object>
 		</transblock>
@@ -68,7 +68,7 @@
 		<transblock>
 			<translate x="-0.8" y="0" z="0.8"/>
 			<object type="primitive" name="cone" >
-				<texture file="/Users/jerry/Desktop/CSCI1230/data/image/cheese.png" u="1" v="1"/>
+				<texture file="/course/cs123/data/image/cheese.png" u="1" v="1"/>
 				<blend v="1.0"/>
 			</object>
 		</transblock>

@@ -14,13 +14,6 @@
 	</cameradata>
 
 	<lightdata>
-		<id v="0"/>
-		<color r="1" g="1" b="1"/>
-		<function v1="1.5" v2="0" v3="0"/>
-		<position x="10" y="10" z="10"/>
-	</lightdata>
-
-	<lightdata>
 		<id v="1"/>
 		<color r="1" g="1" b="1"/>
 		<function v1="1.5" v2="0" v3="0"/>
