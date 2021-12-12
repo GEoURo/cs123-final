@@ -70,7 +70,6 @@ void MainWindow::setupDataBindings() {
     m_bindings.push_back(_b); \
     assert(connect(_b, SIGNAL(dataChanged()), this, SLOT(settingsChanged()))); \
 }
-    BIND(BoolBinding::bindCheckbox(ui->antiAliasing,    settings.antiAliasing));
     BIND(BoolBinding::bindCheckbox(ui->depthOfField,    settings.depthOfField));
     BIND(BoolBinding::bindCheckbox(ui->hdr,             settings.hdr));
     BIND(BoolBinding::bindCheckbox(ui->shadowMapping,   settings.shadowMapping));

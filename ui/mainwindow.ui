@@ -45,19 +45,6 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QCheckBox" name="antiAliasing">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Anti-Aliasing</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="depthOfField">
            <property name="text">
             <string>Depth of Field</string>
@@ -880,7 +867,7 @@
      <x>0</x>
      <y>0</y>
      <width>1091</width>
-     <height>24</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
