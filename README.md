@@ -43,7 +43,14 @@ Here are a few discussions on shadow mapping.
 
 3. Although point shadow did not work, on our path to solve the problem, we did find an intutive way to demonstrate how the cube depth mapping is representing the depth info of the surroundings.
 
-We made debug shaders that can visualize what the depth info is look like. It can be achieved with the following steps.
+We made debug shaders that can visualize what the depth info is look like. It can be achieved with the following steps. There are also screen recordings that show the exact same thing under directory `/videos`
+
+For directional shadow
+``` C++
+1. Uncomment #define DEBUG_POINT_SHADOW in view.cpp
+
+2. Open a scene file that contains directional light under directory "/scenefiles/demo" and check "Shadow mapping" in the UI.
+```
 
 For point shadows
 ``` C++
@@ -58,14 +65,7 @@ For point shadows
 3. Open all_cheese.xml scene under the "/scenefiles/demo" directory of this project and check "Shadow mapping" in the UI.
 ```
 
-For directional shadow
-``` C++
-1. Uncomment #define DEBUG_POINT_SHADOW in view.cpp
-
-2. Open a scene file that contains directional light under directory "/scenefiles/demo" and check "Shadow mapping" in the UI.
-```
-
-The depth cube map used here is a pre-allocated cube texture with fixed values on each face. It shows that how the cube map is interpreting the surroundings. It also demonstrates that our method of sampling from the cube depth map is correct and the only problem is getting infomation into the cube texture inside the FBO.
+The depth cube map used here is a pre-allocated cube texture with fixed values on each face. It shows that how the cube map is interpreting the surroundings. It also demonstrates that our method of sampling from the cube depth map is correct and the only problem is getting infomation into the cube depth texture inside the FBO.
 
 Overall, we were planning to consider 2 shadows, one for directional light and one for point light. But due to the setback on cube texture with FBO, the point shadow did not work eventually. Therefore, there will be only one light in our scene can cast shadows. That is also why our scenefiles for demonstrating shadow mapping mostly only have one or two directional lights.
 
