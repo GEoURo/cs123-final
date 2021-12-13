@@ -55,14 +55,14 @@ For point shadows
     glBindTexture(GL_TEXTURE_CUBE_MAP, testCubeMap);
     glUniform1i(glGetUniformLocation(m_pointShadowDebugShader->getID(), "pointShadow.depthMap"), 0);
 
-3. Open all_cheese.xml scene under the scenefiles directory of this project and check "Shadow mapping" in the UI.
+3. Open all_cheese.xml scene under the "/scenefiles/demo" directory of this project and check "Shadow mapping" in the UI.
 ```
 
 For directional shadow
 ``` C++
 1. Uncomment #define DEBUG_POINT_SHADOW in view.cpp
 
-2. Open a scene file that contains directional light and check "Shadow mapping" in the UI.
+2. Open a scene file that contains directional light under directory "/scenefiles/demo" and check "Shadow mapping" in the UI.
 ```
 
 The depth cube map used here is a pre-allocated cube texture with fixed values on each face. It shows that how the cube map is interpreting the surroundings. It also demonstrates that our method of sampling from the cube depth map is correct and the only problem is getting infomation into the cube texture inside the FBO.
@@ -79,7 +79,7 @@ We resolved this by changing the type of the depth attachment to a texture. Then
 
 ## Test scenes
 
-All of our test scenes for demonstration can be found in the `scenefiles` directory of our repository.
+All of our test scenes for demonstration can be found in the `scenefiles/demo` directory of our repository.
 
 ## Words of thought
 
